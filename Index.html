@@ -1,1 +1,471 @@
-a09e835a084c47abb6b6adedf0a4ac05
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quotex AI Signal</title>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+      background:#07111f;
+      color:white;
+      padding:20px;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:10px;
+      color:#00e0ff;
+    }
+
+    .sub{
+      text-align:center;
+      color:#9db3c8;
+      margin-bottom:25px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:15px;
+    }
+
+    .card{
+      background:#111c2c;
+      border:1px solid #22334a;
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 0 20px rgba(0,224,255,.05);
+    }
+
+    .label{
+      color:#8fa4b8;
+      font-size:14px;
+      margin-bottom:8px;
+    }
+
+    .value{
+      font-size:26px;
+      font-weight:bold;
+    }
+
+    select, button{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:none;
+      margin-top:8px;
+      font-size:16px;
+    }
+
+    select{
+      background:#18263a;
+      color:white;
+    }
+
+    button{
+      background:#00d4ff;
+      color:#001019;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    button:hover{
+      opacity:.9;
+    }
+
+    .signal-box{
+      margin-top:20px;
+      text-align:center;
+      padding:25px;
+      border-radius:14px;
+      background:#101d2c;
+    }
+
+    .signal{
+      font-size:44px;
+      font-weight:bold;
+      margin:15px 0;
+    }
+
+    .buy{
+      color:#00ff88;
+    }
+
+    .sell{
+      color:#ff4d67;
+    }
+
+    .wait{
+      color:#ffd166;
+    }
+
+    .countdown{
+      font-size:40px;
+      margin-top:10px;
+      color:#00d4ff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:15px;
+    }
+
+    th,td{
+      padding:10px;
+      border-bottom:1px solid #26374e;
+      text-align:center;
+      font-size:14px;
+    }
+
+    th{
+      color:#00d4ff;
+    }
+
+    .stats{
+      margin-top:20px;
+    }
+
+    .notice{
+      margin-top:20px;
+      padding:12px;
+      border-radius:10px;
+      background:#1c2636;
+      color:#ffcc66;
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    @media(max-width:600px){
+      body{
+        padding:10px;
+      }
+
+      .signal{
+        font-size:34px;
+      }
+
+      .countdown{
+        font-size:32px;
+      }
+
+      th,td{
+        font-size:12px;
+        padding:7px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Quotex AI Signal</h1>
+  <div class="sub">1 Minute Signal Dashboard</div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="label">Currency Pair</div>
+
+      <select id="pair">
+        <option>EUR/USD</option>
+        <option>GBP/USD</option>
+        <option>USD/JPY</option>
+        <option>AUD/USD</option>
+        <option>USD/CAD</option>
+        <option>EUR/JPY</option>
+        <option>GBP/JPY</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div class="label">Time Frame</div>
+      <div class="value">1 Minute</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Indian Time</div>
+      <div class="value" id="indiaTime">--:--:--</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Market Status</div>
+      <div class="value" style="color:#00ff88;">ACTIVE</div>
+    </div>
+
+  </div>
+
+  <div class="signal-box">
+
+    <div class="label">Current AI Signal</div>
+
+    <div id="signal" class="signal wait">
+      WAIT
+    </div>
+
+    <div>
+      Next signal in
+    </div>
+
+    <div id="countdown" class="countdown">
+      60
+    </div>
+
+    <button onclick="generateSignal()">
+      Generate Signal Now
+    </button>
+
+  </div>
+
+
+  <div class="grid stats">
+
+    <div class="card">
+      <div class="label">Total Signals</div>
+      <div class="value" id="totalSignals">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">BUY Signals</div>
+      <div class="value" id="buySignals" style="color:#00ff88;">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">SELL Signals</div>
+      <div class="value" id="sellSignals" style="color:#ff4d67;">0</div>
+    </div>
+
+  </div>
+
+
+  <div class="card" style="margin-top:20px;">
+
+    <div class="label">Signal History</div>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Pair</th>
+          <th>Signal</th>
+          <th>Expiry</th>
+        </tr>
+      </thead>
+
+      <tbody id="history">
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <div class="notice">
+    Demo version only. Signals shown here are generated locally for testing the website interface.
+    They are not guaranteed trading predictions and are not connected to Quotex live or OTC market data.
+  </div>
+
+</div>
+
+
+<script>
+
+let seconds = 60;
+
+let total = 0;
+let buys = 0;
+let sells = 0;
+
+
+/* Indian Time */
+
+function updateIndiaTime(){
+
+  const now = new Date();
+
+  const options = {
+    timeZone:"Asia/Kolkata",
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit"
+  };
+
+  document.getElementById("indiaTime").innerText =
+    now.toLocaleTimeString("en-IN",options);
+
+}
+
+setInterval(updateIndiaTime,1000);
+
+updateIndiaTime();
+
+
+/* Countdown */
+
+setInterval(()=>{
+
+  seconds--;
+
+  document.getElementById("countdown").innerText = seconds;
+
+  if(seconds <= 0){
+
+    generateSignal();
+
+    seconds = 60;
+
+  }
+
+},1000);
+
+
+/* Generate Signal */
+
+function generateSignal(){
+
+  const pair =
+    document.getElementById("pair").value;
+
+  const signalElement =
+    document.getElementById("signal");
+
+  const random =
+    Math.random();
+
+  let signal;
+
+  if(random > 0.5){
+
+    signal = "BUY";
+
+    signalElement.className =
+      "signal buy";
+
+    buys++;
+
+  }
+  else{
+
+    signal = "SELL";
+
+    signalElement.className =
+      "signal sell";
+
+    sells++;
+
+  }
+
+  signalElement.innerText = signal;
+
+  total++;
+
+  document.getElementById("totalSignals").innerText = total;
+  document.getElementById("buySignals").innerText = buys;
+  document.getElementById("sellSignals").innerText = sells;
+
+  addHistory(pair,signal);
+
+  playSound();
+
+}
+
+
+/* History */
+
+function addHistory(pair,signal){
+
+  const table =
+    document.getElementById("history");
+
+  const row =
+    document.createElement("tr");
+
+  const now =
+    new Date().toLocaleTimeString(
+      "en-IN",
+      {timeZone:"Asia/Kolkata"}
+    );
+
+  const signalColor =
+    signal === "BUY"
+    ? "#00ff88"
+    : "#ff4d67";
+
+  row.innerHTML = `
+    <td>${now}</td>
+    <td>${pair}</td>
+    <td style="color:${signalColor};font-weight:bold;">
+      ${signal}
+    </td>
+    <td>1 Minute</td>
+  `;
+
+  table.prepend(row);
+
+}
+
+
+/* Sound */
+
+function playSound(){
+
+  try{
+
+    const audioContext =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+    const oscillator =
+      audioContext.createOscillator();
+
+    const gain =
+      audioContext.createGain();
+
+    oscillator.connect(gain);
+
+    gain.connect(
+      audioContext.destination
+    );
+
+    oscillator.frequency.value = 700;
+
+    gain.gain.value = 0.1;
+
+    oscillator.start();
+
+    oscillator.stop(
+      audioContext.currentTime + 0.2
+    );
+
+  }
+  catch(e){
+
+    console.log("Sound blocked");
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
