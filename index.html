@@ -1,170 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quotex AI Signal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotex AI Signal - Live</title>
 
   <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-      font-family:Arial, sans-serif;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
 
-    body{
-      background:#07111f;
-      color:white;
-      padding:20px;
+    body {
+      background: #07111f;
+      color: white;
+      padding: 15px;
     }
 
-    .container{
-      max-width:1100px;
-      margin:auto;
+    .container {
+      max-width: 1100px;
+      margin: auto;
     }
 
-    h1{
-      text-align:center;
-      margin-bottom:10px;
-      color:#00e0ff;
+    h1 {
+      text-align: center;
+      color: #00e0ff;
+      margin: 10px 0;
     }
 
-    .sub{
-      text-align:center;
-      color:#9db3c8;
-      margin-bottom:25px;
+    .sub {
+      text-align: center;
+      color: #9db3c8;
+      margin-bottom: 20px;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:15px;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 15px;
     }
 
-    .card{
-      background:#111c2c;
-      border:1px solid #22334a;
-      border-radius:14px;
-      padding:18px;
-      box-shadow:0 0 20px rgba(0,224,255,.05);
+    .card {
+      background: #111c2c;
+      border: 1px solid #22334a;
+      border-radius: 14px;
+      padding: 18px;
     }
 
-    .label{
-      color:#8fa4b8;
-      font-size:14px;
-      margin-bottom:8px;
+    .label {
+      color: #8fa4b8;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
-    .value{
-      font-size:26px;
-      font-weight:bold;
+    .value {
+      font-size: 24px;
+      font-weight: bold;
     }
 
-    select, button{
-      width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:none;
-      margin-top:8px;
-      font-size:16px;
+    select,
+    button {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 8px;
+      font-size: 16px;
     }
 
-    select{
-      background:#18263a;
-      color:white;
+    select {
+      background: #18263a;
+      color: white;
     }
 
-    button{
-      background:#00d4ff;
-      color:#001019;
-      font-weight:bold;
-      cursor:pointer;
+    button {
+      background: #00d4ff;
+      color: #001019;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    button:hover{
-      opacity:.9;
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
     }
 
-    .signal-box{
-      margin-top:20px;
-      text-align:center;
-      padding:25px;
-      border-radius:14px;
-      background:#101d2c;
+    .signal-box {
+      margin-top: 20px;
+      text-align: center;
+      padding: 25px;
+      border-radius: 14px;
+      background: #101d2c;
     }
 
-    .signal{
-      font-size:44px;
-      font-weight:bold;
-      margin:15px 0;
+    .signal {
+      font-size: 44px;
+      font-weight: bold;
+      margin: 15px 0;
     }
 
-    .buy{
-      color:#00ff88;
+    .buy {
+      color: #00ff88;
     }
 
-    .sell{
-      color:#ff4d67;
+    .sell {
+      color: #ff4d67;
     }
 
-    .wait{
-      color:#ffd166;
+    .wait {
+      color: #ffd166;
     }
 
-    .countdown{
-      font-size:40px;
-      margin-top:10px;
-      color:#00d4ff;
+    .countdown {
+      font-size: 40px;
+      margin-top: 10px;
+      color: #00d4ff;
     }
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:15px;
+    .price {
+      font-size: 25px;
+      margin: 10px;
+      color: #ffffff;
     }
 
-    th,td{
-      padding:10px;
-      border-bottom:1px solid #26374e;
-      text-align:center;
-      font-size:14px;
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
     }
 
-    th{
-      color:#00d4ff;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
     }
 
-    .stats{
-      margin-top:20px;
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #26374e;
+      text-align: center;
+      font-size: 14px;
     }
 
-    .notice{
-      margin-top:20px;
-      padding:12px;
-      border-radius:10px;
-      background:#1c2636;
-      color:#ffcc66;
-      font-size:13px;
-      line-height:1.5;
+    th {
+      color: #00d4ff;
     }
 
-    @media(max-width:600px){
-      body{
-        padding:10px;
+    .notice {
+      margin-top: 20px;
+      padding: 13px;
+      border-radius: 10px;
+      background: #1c2636;
+      color: #ffcc66;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .live {
+      color: #00ff88;
+    }
+
+    @media(max-width:600px) {
+      body {
+        padding: 10px;
       }
 
-      .signal{
-        font-size:34px;
+      .signal {
+        font-size: 36px;
       }
 
-      .countdown{
-        font-size:32px;
+      .countdown {
+        font-size: 32px;
       }
 
-      th,td{
-        font-size:12px;
-        padding:7px;
+      th,
+      td {
+        font-size: 12px;
+        padding: 7px;
       }
     }
   </style>
@@ -175,7 +193,10 @@
 <div class="container">
 
   <h1>Quotex AI Signal</h1>
-  <div class="sub">1 Minute Signal Dashboard</div>
+
+  <div class="sub">
+    LIVE Market Analysis • 1 Minute
+  </div>
 
   <div class="grid">
 
@@ -183,13 +204,13 @@
       <div class="label">Currency Pair</div>
 
       <select id="pair">
-        <option>EUR/USD</option>
-        <option>GBP/USD</option>
-        <option>USD/JPY</option>
-        <option>AUD/USD</option>
-        <option>USD/CAD</option>
-        <option>EUR/JPY</option>
-        <option>GBP/JPY</option>
+        <option value="EUR/USD">EUR/USD</option>
+        <option value="GBP/USD">GBP/USD</option>
+        <option value="USD/JPY">USD/JPY</option>
+        <option value="AUD/USD">AUD/USD</option>
+        <option value="USD/CAD">USD/CAD</option>
+        <option value="EUR/JPY">EUR/JPY</option>
+        <option value="GBP/JPY">GBP/JPY</option>
       </select>
     </div>
 
@@ -204,36 +225,51 @@
     </div>
 
     <div class="card">
-      <div class="label">Market Status</div>
-      <div class="value" style="color:#00ff88;">ACTIVE</div>
+      <div class="label">Market</div>
+      <div class="value live">LIVE</div>
     </div>
 
   </div>
 
+
   <div class="signal-box">
 
-    <div class="label">Current AI Signal</div>
+    <div class="label">
+      Current Live Signal
+    </div>
 
     <div id="signal" class="signal wait">
       WAIT
     </div>
 
-    <div>
-      Next signal in
+    <div id="price" class="price">
+      Price: --
+    </div>
+
+    <div id="strength">
+      Strength: --
+    </div>
+
+    <div id="status" class="status">
+      Ready
+    </div>
+
+    <div style="margin-top:15px;">
+      Next analysis in
     </div>
 
     <div id="countdown" class="countdown">
       60
     </div>
 
-    <button onclick="generateSignal()">
-      Generate Signal Now
+    <button id="signalButton" onclick="getLiveSignal()">
+      Generate Live Signal
     </button>
 
   </div>
 
 
-  <div class="grid stats">
+  <div class="grid" style="margin-top:20px;">
 
     <div class="card">
       <div class="label">Total Signals</div>
@@ -242,12 +278,12 @@
 
     <div class="card">
       <div class="label">BUY Signals</div>
-      <div class="value" id="buySignals" style="color:#00ff88;">0</div>
+      <div class="value buy" id="buySignals">0</div>
     </div>
 
     <div class="card">
       <div class="label">SELL Signals</div>
-      <div class="value" id="sellSignals" style="color:#ff4d67;">0</div>
+      <div class="value sell" id="sellSignals">0</div>
     </div>
 
   </div>
@@ -255,7 +291,9 @@
 
   <div class="card" style="margin-top:20px;">
 
-    <div class="label">Signal History</div>
+    <div class="label">
+      Live Signal History
+    </div>
 
     <table>
 
@@ -264,13 +302,12 @@
           <th>Time</th>
           <th>Pair</th>
           <th>Signal</th>
+          <th>Strength</th>
           <th>Expiry</th>
         </tr>
       </thead>
 
-      <tbody id="history">
-
-      </tbody>
+      <tbody id="history"></tbody>
 
     </table>
 
@@ -278,8 +315,9 @@
 
 
   <div class="notice">
-    Demo version only. Signals shown here are generated locally for testing the website interface.
-    They are not guaranteed trading predictions and are not connected to Quotex live or OTC market data.
+    LIVE market data is provided through RealMarketAPI.
+    Signals are technical analysis outputs and are not guaranteed
+    trading predictions or guaranteed profits.
   </div>
 
 </div>
@@ -293,103 +331,244 @@ let total = 0;
 let buys = 0;
 let sells = 0;
 
+let loading = false;
 
-/* Indian Time */
 
-function updateIndiaTime(){
+/* =========================
+   INDIAN TIME
+========================= */
+
+function updateIndiaTime() {
 
   const now = new Date();
 
   const options = {
-    timeZone:"Asia/Kolkata",
-    hour:"2-digit",
-    minute:"2-digit",
-    second:"2-digit"
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
   };
 
   document.getElementById("indiaTime").innerText =
-    now.toLocaleTimeString("en-IN",options);
-
+    now.toLocaleTimeString("en-IN", options);
 }
-
-setInterval(updateIndiaTime,1000);
 
 updateIndiaTime();
 
+setInterval(updateIndiaTime, 1000);
 
-/* Countdown */
 
-setInterval(()=>{
+/* =========================
+   LIVE SIGNAL
+========================= */
 
-  seconds--;
+async function getLiveSignal() {
 
-  document.getElementById("countdown").innerText = seconds;
+  if (loading) return;
 
-  if(seconds <= 0){
+  loading = true;
 
-    generateSignal();
+  const button =
+    document.getElementById("signalButton");
+
+  const signalElement =
+    document.getElementById("signal");
+
+  const statusElement =
+    document.getElementById("status");
+
+  const pair =
+    document.getElementById("pair").value;
+
+  button.disabled = true;
+
+  button.innerText = "Analyzing...";
+
+  signalElement.className =
+    "signal wait";
+
+  signalElement.innerText =
+    "WAIT";
+
+  statusElement.className =
+    "status";
+
+  statusElement.innerText =
+    "Getting live market data...";
+
+
+  try {
+
+    const symbol =
+      pair.replace("/", "");
+
+    const url =
+      "/.netlify/functions/signal?symbol=" +
+      encodeURIComponent(symbol);
+
+    const response =
+      await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+      });
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        data.message ||
+        "API request failed"
+      );
+
+    }
+
+
+    if (
+      data.signal !== "BUY" &&
+      data.signal !== "SELL"
+    ) {
+
+      throw new Error(
+        "No valid BUY/SELL signal received"
+      );
+
+    }
+
+
+    /* SIGNAL */
+
+    if (data.signal === "BUY") {
+
+      signalElement.className =
+        "signal buy";
+
+      signalElement.innerText =
+        "BUY";
+
+      buys++;
+
+    } else {
+
+      signalElement.className =
+        "signal sell";
+
+      signalElement.innerText =
+        "SELL";
+
+      sells++;
+
+    }
+
+
+    total++;
+
+
+    document.getElementById(
+      "totalSignals"
+    ).innerText = total;
+
+    document.getElementById(
+      "buySignals"
+    ).innerText = buys;
+
+    document.getElementById(
+      "sellSignals"
+    ).innerText = sells;
+
+
+    /* PRICE */
+
+    if (data.price !== undefined) {
+
+      document.getElementById(
+        "price"
+      ).innerText =
+        "Price: " + data.price;
+
+    }
+
+
+    /* STRENGTH */
+
+    if (data.strength !== undefined) {
+
+      document.getElementById(
+        "strength"
+      ).innerText =
+        "Strength: " +
+        data.strength +
+        "%";
+
+    }
+
+
+    statusElement.className =
+      "status live";
+
+    statusElement.innerText =
+      "LIVE • " +
+      (data.source || "RealMarketAPI");
+
+
+    addHistory(
+      pair,
+      data.signal,
+      data.strength
+    );
+
+
+    /* SOUND */
+
+    playSound(data.signal);
+
 
     seconds = 60;
 
   }
 
-},1000);
+  catch (error) {
 
-
-/* Generate Signal */
-
-function generateSignal(){
-
-  const pair =
-    document.getElementById("pair").value;
-
-  const signalElement =
-    document.getElementById("signal");
-
-  const random =
-    Math.random();
-
-  let signal;
-
-  if(random > 0.5){
-
-    signal = "BUY";
+    console.error(error);
 
     signalElement.className =
-      "signal buy";
+      "signal wait";
 
-    buys++;
+    signalElement.innerText =
+      "WAIT";
 
-  }
-  else{
+    statusElement.className =
+      "status error";
 
-    signal = "SELL";
-
-    signalElement.className =
-      "signal sell";
-
-    sells++;
+    statusElement.innerText =
+      "Error: " + error.message;
 
   }
 
-  signalElement.innerText = signal;
 
-  total++;
+  loading = false;
 
-  document.getElementById("totalSignals").innerText = total;
-  document.getElementById("buySignals").innerText = buys;
-  document.getElementById("sellSignals").innerText = sells;
+  button.disabled = false;
 
-  addHistory(pair,signal);
-
-  playSound();
+  button.innerText =
+    "Generate Live Signal";
 
 }
 
 
-/* History */
+/* =========================
+   HISTORY
+========================= */
 
-function addHistory(pair,signal){
+function addHistory(
+  pair,
+  signal,
+  strength
+) {
 
   const table =
     document.getElementById("history");
@@ -397,73 +576,199 @@ function addHistory(pair,signal){
   const row =
     document.createElement("tr");
 
+
   const now =
     new Date().toLocaleTimeString(
       "en-IN",
-      {timeZone:"Asia/Kolkata"}
+      {
+        timeZone: "Asia/Kolkata",
+        hour12: false
+      }
     );
+
 
   const signalColor =
     signal === "BUY"
-    ? "#00ff88"
-    : "#ff4d67";
+      ? "#00ff88"
+      : "#ff4d67";
+
 
   row.innerHTML = `
+
     <td>${now}</td>
+
     <td>${pair}</td>
-    <td style="color:${signalColor};font-weight:bold;">
+
+    <td style="
+      color:${signalColor};
+      font-weight:bold;
+    ">
       ${signal}
     </td>
-    <td>1 Minute</td>
+
+    <td>
+      ${strength !== undefined
+        ? strength + "%"
+        : "--"}
+    </td>
+
+    <td>
+      1 Minute
+    </td>
+
   `;
 
+
   table.prepend(row);
+
+
+  /* Keep only latest 20 */
+
+  while (table.rows.length > 20) {
+
+    table.deleteRow(
+      table.rows.length - 1
+    );
+
+  }
 
 }
 
 
-/* Sound */
+/* =========================
+   COUNTDOWN
+========================= */
 
-function playSound(){
+setInterval(() => {
 
-  try{
+  seconds--;
 
-    const audioContext =
-      new (
-        window.AudioContext ||
-        window.webkitAudioContext
-      )();
+  if (seconds < 0) {
+    seconds = 60;
+  }
+
+  document.getElementById(
+    "countdown"
+  ).innerText = seconds;
+
+
+  if (seconds === 0) {
+
+    getLiveSignal();
+
+  }
+
+}, 1000);
+
+
+/* =========================
+   SOUND
+========================= */
+
+function playSound(signal) {
+
+  try {
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const audio =
+      new AudioContext();
 
     const oscillator =
-      audioContext.createOscillator();
+      audio.createOscillator();
 
     const gain =
-      audioContext.createGain();
+      audio.createGain();
+
 
     oscillator.connect(gain);
 
     gain.connect(
-      audioContext.destination
+      audio.destination
     );
 
-    oscillator.frequency.value = 700;
 
-    gain.gain.value = 0.1;
+    oscillator.frequency.value =
+      signal === "BUY"
+        ? 800
+        : 500;
+
+
+    gain.gain.value = 0.08;
+
 
     oscillator.start();
 
     oscillator.stop(
-      audioContext.currentTime + 0.2
+      audio.currentTime + 0.25
     );
 
   }
-  catch(e){
 
-    console.log("Sound blocked");
+  catch (e) {
+
+    console.log(
+      "Sound unavailable"
+    );
 
   }
 
 }
+
+
+/* =========================
+   PAIR CHANGE
+========================= */
+
+document
+  .getElementById("pair")
+  .addEventListener(
+    "change",
+    () => {
+
+      document.getElementById(
+        "signal"
+      ).className =
+        "signal wait";
+
+      document.getElementById(
+        "signal"
+      ).innerText =
+        "WAIT";
+
+      document.getElementById(
+        "price"
+      ).innerText =
+        "Price: --";
+
+      document.getElementById(
+        "strength"
+      ).innerText =
+        "Strength: --";
+
+    }
+  );
+
+
+/* =========================
+   FIRST LIVE ANALYSIS
+========================= */
+
+window.addEventListener(
+  "load",
+  () => {
+
+    setTimeout(
+      getLiveSignal,
+      1000
+    );
+
+  }
+);
 
 </script>
 
