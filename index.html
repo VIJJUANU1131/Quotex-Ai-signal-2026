@@ -4,253 +4,91 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Quotex AI Signal - Live 1 Minute</title>
+<title>Quotex OTC Signal</title>
 
 <style>
-* {
-  box-sizing: border-box;
+*{
+  box-sizing:border-box;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #07101f;
-  color: white;
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:white;
 }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 18px;
+.container{
+  max-width:600px;
+  margin:auto;
+  padding:20px;
 }
 
-h1 {
-  text-align: center;
-  margin: 10px 0 25px;
-  font-size: 30px;
+h1{
+  text-align:center;
+  margin-bottom:20px;
 }
 
-.card {
-  background: #101d30;
-  border: 1px solid #263b57;
-  border-radius: 22px;
-  padding: 25px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+.card{
+  background:#1d1d1d;
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:15px;
 }
 
-.label {
-  color: #91a5bf;
-  font-size: 18px;
-  margin-bottom: 12px;
+label{
+  display:block;
+  margin-bottom:8px;
+  font-size:16px;
+  font-weight:bold;
 }
 
-select,
-button {
-  width: 100%;
-  padding: 17px;
-  border-radius: 14px;
-  font-size: 18px;
+select{
+  width:100%;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #555;
+  background:#292929;
+  color:white;
+  font-size:17px;
 }
 
-select {
-  background: #17263a;
-  color: white;
-  border: 2px solid white;
+button{
+  width:100%;
+  padding:15px;
+  margin-top:15px;
+  border:none;
+  border-radius:10px;
+  background:#1683ff;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
 }
 
-button {
-  border: none;
-  background: #08c9ef;
-  color: #00121d;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
+.signal{
+  text-align:center;
+  font-size:38px;
+  font-weight:bold;
+  margin:20px 0;
 }
 
-button:active {
-  transform: scale(0.98);
+.info{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid #333;
 }
 
-.timeframe {
-  font-size: 32px;
-  font-weight: bold;
+.wait{
+  color:#ffb000;
 }
 
-.clock {
-  font-size: 32px;
-  font-weight: bold;
+.buy{
+  color:#00c853;
 }
 
-.status {
-  font-size: 30px;
-  font-weight: bold;
-}
-
-.status.live {
-  color: #00e676;
-}
-
-.status.error {
-  color: #ff6464;
-}
-
-.status.wait {
-  color: #ffc94d;
-}
-
-.signal-card {
-  text-align: center;
-}
-
-.signal-title {
-  color: #91a5bf;
-  font-size: 22px;
-}
-
-.signal {
-  font-size: 64px;
-  font-weight: bold;
-  margin: 15px 0;
-}
-
-.buy {
-  color: #00e676;
-}
-
-.sell {
-  color: #ff5252;
-}
-
-.wait {
-  color: #ffc94d;
-}
-
-.price {
-  font-size: 30px;
-  margin: 10px 0;
-}
-
-.strength {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.message {
-  margin-top: 15px;
-  color: #ff7777;
-  font-size: 17px;
-}
-
-.countdown-title {
-  margin-top: 25px;
-  font-size: 20px;
-}
-
-.countdown {
-  font-size: 55px;
-  color: #00cfff;
-  font-weight: bold;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.stat {
-  background: #17263a;
-  border-radius: 15px;
-  padding: 18px;
-  text-align: center;
-}
-
-.stat-title {
-  color: #91a5bf;
-  font-size: 15px;
-}
-
-.stat-value {
-  font-size: 30px;
-  font-weight: bold;
-  margin-top: 8px;
-}
-
-.win {
-  color: #00e676;
-}
-
-.loss {
-  color: #ff5252;
-}
-
-.rate {
-  color: #ffc94d;
-}
-
-.history {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 650px;
-}
-
-th,
-td {
-  padding: 12px;
-  border-bottom: 1px solid #293c55;
-  text-align: center;
-}
-
-th {
-  color: #91a5bf;
-}
-
-.pending {
-  color: #ffc94d;
-}
-
-.small {
-  color: #91a5bf;
-  font-size: 13px;
-  margin-top: 10px;
-}
-
-.clear-btn {
-  background: #26384f;
-  color: white;
-  margin-top: 15px;
-}
-
-@media(max-width:600px) {
-
-  .container {
-    padding: 12px;
-  }
-
-  h1 {
-    font-size: 24px;
-  }
-
-  .card {
-    padding: 20px;
-  }
-
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
-  .signal {
-    font-size: 52px;
-  }
-
-  .countdown {
-    font-size: 48px;
-  }
+.sell{
+  color:#ff4747;
 }
 </style>
 </head>
@@ -259,1126 +97,239 @@ th {
 
 <div class="container">
 
-<h1>Quotex AI Signal - Live 1 Minute</h1>
+<h1>Quotex OTC Signal</h1>
 
-<!-- PAIR -->
 <div class="card">
 
-  <div class="label">Currency Pair</div>
+<label>Select OTC Trade Pair</label>
 
-  <select id="pairSelect">
-    <option value="EURUSD_otc">EUR/USD OTC</option>
-    <option value="GBPUSD_otc">GBP/USD OTC</option>
-    <option value="USDJPY_otc">USD/JPY OTC</option>
-    <option value="AUDUSD_otc">AUD/USD OTC</option>
-    <option value="USDCAD_otc">USD/CAD OTC</option>
-    <option value="EURJPY_otc">EUR/JPY OTC</option>
-    <option value="GBPJPY_otc">GBP/JPY OTC</option>
-  </select>
+<select id="pair">
+
+  <option value="AUDNZD_otc">
+    AUD/NZD (OTC)
+  </option>
+
+  <option value="GBPNZD_otc">
+    GBP/NZD (OTC)
+  </option>
+
+  <option value="NZDCAD_otc">
+    NZD/CAD (OTC)
+  </option>
+
+  <option value="NZDUSD_otc">
+    NZD/USD (OTC)
+  </option>
+
+  <option value="USDBRL_otc">
+    USD/BRL (OTC)
+  </option>
+
+  <option value="USDDZD_otc">
+    USD/DZD (OTC)
+  </option>
+
+  <option value="USDEGP_otc">
+    USD/EGP (OTC)
+  </option>
+
+  <option value="USDNGN_otc">
+    USD/NGN (OTC)
+  </option>
+
+  <option value="USDCOP_otc">
+    USD/COP (OTC)
+  </option>
+
+  <option value="USDBDT_otc">
+    USD/BDT (OTC)
+  </option>
+
+  <option value="USDPHP_otc">
+    USD/PHP (OTC)
+  </option>
+
+</select>
+
+<button onclick="generateSignal()">
+  Generate Live Signal
+</button>
 
 </div>
 
-<!-- TIME FRAME -->
+
 <div class="card">
 
-  <div class="label">Time Frame</div>
-
-  <div class="timeframe">
-    1 Minute
-  </div>
-
+<div class="info">
+<span>Market</span>
+<strong id="market">QUOTEX OTC</strong>
 </div>
 
-<!-- INDIAN TIME -->
-<div class="card">
-
-  <div class="label">Indian Time</div>
-
-  <div class="clock" id="indiaTime">
-    --:--:--
-  </div>
-
+<div class="info">
+<span>Timeframe</span>
+<strong>M1 / 1 Minute</strong>
 </div>
 
-<!-- MARKET STATUS -->
-<div class="card">
-
-  <div class="label">Market Status</div>
-
-  <div id="marketStatus" class="status wait">
-    CHECKING
-  </div>
-
+<div class="info">
+<span>Selected Pair</span>
+<strong id="selectedPair">AUD/NZD (OTC)</strong>
 </div>
 
-<!-- SIGNAL -->
-<div class="card signal-card">
-
-  <div class="signal-title">
-    CURRENT LIVE SIGNAL
-  </div>
-
-  <div id="signal" class="signal wait">
-    WAIT
-  </div>
-
-  <div class="price">
-    Price:
-    <span id="price">--</span>
-  </div>
-
-  <div class="strength">
-    Strength:
-    <span id="strength">--</span>
-  </div>
-
-  <div id="message" class="message">
-    Waiting for live market data...
-  </div>
-
-  <div class="countdown-title">
-    Next analysis in
-  </div>
-
-  <div id="countdown" class="countdown">
-    60
-  </div>
-
-  <button id="generateBtn">
-    Generate Live Signal
-  </button>
-
+<div class="info">
+<span>Status</span>
+<strong id="status">READY</strong>
 </div>
 
-<!-- STATS -->
-<div class="card">
-
-  <div class="label">
-    Result Tracker
-  </div>
-
-  <div class="stats">
-
-    <div class="stat">
-      <div class="stat-title">WIN</div>
-      <div id="winCount" class="stat-value win">
-        0
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-title">LOSS</div>
-      <div id="lossCount" class="stat-value loss">
-        0
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-title">WIN RATE</div>
-      <div id="winRate" class="stat-value rate">
-        0%
-      </div>
-    </div>
-
-  </div>
-
-  <div class="small">
-    WIN RATE = confirmed WIN ÷ confirmed BUY/SELL results.
-  </div>
-
+<div class="signal wait" id="signal">
+WAIT
 </div>
 
-<!-- SIGNAL TOTALS -->
-<div class="card">
-
-  <div class="label">
-    Signal Statistics
-  </div>
-
-  <div class="stats">
-
-    <div class="stat">
-      <div class="stat-title">TOTAL SIGNALS</div>
-      <div id="totalSignals" class="stat-value">
-        0
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-title">BUY</div>
-      <div id="buyCount" class="stat-value win">
-        0
-      </div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-title">SELL</div>
-      <div id="sellCount" class="stat-value loss">
-        0
-      </div>
-    </div>
-
-  </div>
-
+<div class="info">
+<span>Price</span>
+<strong id="price">--</strong>
 </div>
 
-<!-- HISTORY -->
-<div class="card">
-
-  <div class="label">
-    Signal History
-  </div>
-
-  <div class="history">
-
-    <table>
-
-      <thead>
-
-        <tr>
-          <th>Time</th>
-          <th>Pair</th>
-          <th>Signal</th>
-          <th>Entry</th>
-          <th>Exit</th>
-          <th>Result</th>
-        </tr>
-
-      </thead>
-
-      <tbody id="historyBody">
-      </tbody>
-
-    </table>
-
-  </div>
-
-  <button id="clearHistoryBtn" class="clear-btn">
-    Clear History
-  </button>
+<div class="info">
+<span>Strength</span>
+<strong id="strength">--</strong>
+</div>
 
 </div>
 
 </div>
+
 
 <script>
 
-/* ==================================================
-   CONFIG
-================================================== */
+const pairNames = {
 
-const API_URL = "/.netlify/functions/signal";
+  AUDNZD_otc: "AUD/NZD (OTC)",
 
-const EXPIRY_SECONDS = 60;
+  GBPNZD_otc: "GBP/NZD (OTC)",
 
+  NZDCAD_otc: "NZD/CAD (OTC)",
 
-/* ==================================================
-   VARIABLES
-================================================== */
+  NZDUSD_otc: "NZD/USD (OTC)",
 
-let countdown = 60;
+  USDBRL_otc: "USD/BRL (OTC)",
 
-let countdownTimer = null;
+  USDDZD_otc: "USD/DZD (OTC)",
 
-let currentSignal = null;
+  USDEGP_otc: "USD/EGP (OTC)",
 
-let history = JSON.parse(
-  localStorage.getItem("quotex_signal_history") || "[]"
-);
+  USDNGN_otc: "USD/NGN (OTC)",
 
+  USDCOP_otc: "USD/COP (OTC)",
 
-/* ==================================================
-   ELEMENTS
-================================================== */
+  USDBDT_otc: "USD/BDT (OTC)",
 
-const pairSelect =
-  document.getElementById("pairSelect");
+  USDPHP_otc: "USD/PHP (OTC)"
 
-const marketStatus =
-  document.getElementById("marketStatus");
-
-const signalElement =
-  document.getElementById("signal");
-
-const priceElement =
-  document.getElementById("price");
-
-const strengthElement =
-  document.getElementById("strength");
-
-const messageElement =
-  document.getElementById("message");
-
-const countdownElement =
-  document.getElementById("countdown");
-
-const generateBtn =
-  document.getElementById("generateBtn");
-
-const historyBody =
-  document.getElementById("historyBody");
+};
 
 
-/* ==================================================
-   INDIAN TIME
-================================================== */
+const pairSelect = document.getElementById("pair");
 
-function updateIndiaTime() {
+pairSelect.addEventListener("change", function(){
 
-  const now = new Date();
+  const pair = this.value;
 
-  const time = new Intl.DateTimeFormat(
-    "en-IN",
-    {
-      timeZone: "Asia/Kolkata",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    }
-  ).format(now);
+  document.getElementById("selectedPair").textContent =
+    pairNames[pair] || pair;
 
-  document.getElementById(
-    "indiaTime"
-  ).textContent = time;
-}
-
-setInterval(updateIndiaTime, 1000);
-
-updateIndiaTime();
+});
 
 
-/* ==================================================
-   SAFE PRICE PARSER
-================================================== */
+async function generateSignal(){
 
-function getLatestPrice(data) {
+  const pair = pairSelect.value;
 
-  if (!data) {
-    return null;
-  }
+  document.getElementById("selectedPair").textContent =
+    pairNames[pair];
 
-  if (data.price !== undefined &&
-      data.price !== null) {
+  document.getElementById("status").textContent =
+    "LOADING";
 
-    const p = Number(data.price);
+  document.getElementById("signal").textContent =
+    "WAIT";
 
-    if (Number.isFinite(p)) {
-      return p;
-    }
-  }
+  document.getElementById("signal").className =
+    "signal wait";
 
-  if (Array.isArray(data.candles) &&
-      data.candles.length > 0) {
+  try{
 
-    const candle =
-      data.candles[data.candles.length - 1];
+    const url =
+      "/.netlify/functions/signal?symbol=" +
+      encodeURIComponent(pair);
 
-    const p =
-      Number(
-        candle.close ??
-        candle.Close ??
-        candle.price
-      );
+    const response = await fetch(url);
 
-    if (Number.isFinite(p)) {
-      return p;
-    }
-  }
+    const data = await response.json();
 
-  return null;
-}
+    console.log("API:", data);
 
+    document.getElementById("status").textContent =
+      data.status || "UNKNOWN";
 
-/* ==================================================
-   GENERATE SIGNAL
-================================================== */
+    document.getElementById("price").textContent =
+      data.price ?? "--";
 
-async function generateSignal() {
-
-  generateBtn.disabled = true;
-
-  marketStatus.textContent = "CHECKING";
-
-  marketStatus.className =
-    "status wait";
-
-  messageElement.textContent =
-    "Checking live market data...";
-
-  try {
-
-    const selectedPair =
-      pairSelect.value;
-
-    const response =
-      await fetch(
-        API_URL + "?symbol=" +
-        encodeURIComponent(selectedPair) +
-        "&t=" + Date.now()
-      );
-
-    const data =
-      await response.json();
-
-    console.log(
-      "Signal API:",
-      data
-    );
-
-
-    /* ------------------------------------------
-       API ERROR / OFFLINE
-    ------------------------------------------ */
-
-    if (
-      !response.ok ||
-      data.status === "OFFLINE" ||
-      data.status === "ERROR" ||
-      data.error === "QUOTEX_ACCESS_BLOCKED"
-    ) {
-
-      showWait(
-        data.message ||
-        "Live market data unavailable."
-      );
-
-      return;
-    }
-
-
-    /* ------------------------------------------
-       SIGNAL
-    ------------------------------------------ */
+    document.getElementById("strength").textContent =
+      data.strength
+        ? data.strength + "%"
+        : "--";
 
     const signal =
-      String(
-        data.signal || "WAIT"
-      ).toUpperCase();
+      data.signal || "WAIT";
 
-    const price =
-      getLatestPrice(data);
-
-    const strength =
-      data.strength !== undefined
-        ? data.strength
-        : "--";
-
-
-    /* ------------------------------------------
-       MARKET ONLINE
-    ------------------------------------------ */
-
-    marketStatus.textContent =
-      "LIVE";
-
-    marketStatus.className =
-      "status live";
-
-
-    /* ------------------------------------------
-       DISPLAY
-    ------------------------------------------ */
-
-    signalElement.textContent =
+    document.getElementById("signal").textContent =
       signal;
 
-    signalElement.className =
-      "signal " +
-      (
-        signal === "BUY"
-          ? "buy"
-          : signal === "SELL"
-            ? "sell"
-            : "wait"
-      );
+    if(signal === "BUY"){
 
-    priceElement.textContent =
-      price !== null
-        ? price
-        : "--";
-
-    strengthElement.textContent =
-      strength !== "--"
-        ? strength + "%"
-        : "--";
-
-    messageElement.textContent =
-      data.message ||
-      "Live market analysis";
-
-
-    /* ------------------------------------------
-       ONLY TRACK BUY / SELL
-    ------------------------------------------ */
-
-    if (
-      signal === "BUY" ||
-      signal === "SELL"
-    ) {
-
-      createPendingResult(
-        selectedPair,
-        signal,
-        price
-      );
-
-    } else {
-
-      messageElement.textContent =
-        "WAIT — no confirmed BUY/SELL signal.";
+      document.getElementById("signal").className =
+        "signal buy";
 
     }
 
-  } catch (error) {
+    else if(signal === "SELL"){
+
+      document.getElementById("signal").className =
+        "signal sell";
+
+    }
+
+    else{
+
+      document.getElementById("signal").className =
+        "signal wait";
+
+    }
+
+  }
+
+  catch(error){
 
     console.error(error);
 
-    showWait(
-      "Connection error: " +
-      error.message
-    );
+    document.getElementById("status").textContent =
+      "ERROR";
 
-  } finally {
+    document.getElementById("signal").textContent =
+      "WAIT";
 
-    generateBtn.disabled = false;
+    document.getElementById("signal").className =
+      "signal wait";
 
-    resetCountdown();
+    document.getElementById("price").textContent =
+      "--";
+
+    document.getElementById("strength").textContent =
+      "--";
 
   }
+
 }
-
-
-/* ==================================================
-   WAIT DISPLAY
-================================================== */
-
-function showWait(message) {
-
-  marketStatus.textContent =
-    "ERROR";
-
-  marketStatus.className =
-    "status error";
-
-  signalElement.textContent =
-    "WAIT";
-
-  signalElement.className =
-    "signal wait";
-
-  priceElement.textContent =
-    "--";
-
-  strengthElement.textContent =
-    "--";
-
-  messageElement.textContent =
-    message;
-}
-
-
-/* ==================================================
-   CREATE PENDING RESULT
-================================================== */
-
-function createPendingResult(
-  pair,
-  signal,
-  entryPrice
-) {
-
-  if (
-    entryPrice === null ||
-    entryPrice === undefined
-  ) {
-
-    messageElement.textContent =
-      "Signal received, but entry price is unavailable.";
-
-    return;
-  }
-
-
-  const item = {
-
-    id: Date.now(),
-
-    time:
-      new Date().toISOString(),
-
-    pair: pair,
-
-    signal: signal,
-
-    entryPrice: Number(entryPrice),
-
-    exitPrice: null,
-
-    result: "PENDING",
-
-    checked: false
-  };
-
-
-  history.unshift(item);
-
-
-  /* Keep maximum 50 */
-
-  history =
-    history.slice(0, 50);
-
-
-  saveHistory();
-
-  renderHistory();
-
-
-  /* Check after 60 seconds */
-
-  setTimeout(
-    function () {
-
-      checkResult(item.id);
-
-    },
-    EXPIRY_SECONDS * 1000
-  );
-}
-
-
-/* ==================================================
-   CHECK RESULT
-================================================== */
-
-async function checkResult(id) {
-
-  const item =
-    history.find(
-      x => x.id === id
-    );
-
-  if (!item) {
-    return;
-  }
-
-  if (item.checked) {
-    return;
-  }
-
-
-  try {
-
-    const response =
-      await fetch(
-        API_URL +
-        "?symbol=" +
-        encodeURIComponent(item.pair) +
-        "&t=" + Date.now()
-      );
-
-    const data =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      return;
-    }
-
-
-    if (
-      data.status === "OFFLINE" ||
-      data.status === "ERROR" ||
-      data.error === "QUOTEX_ACCESS_BLOCKED"
-    ) {
-
-      /*
-        Keep PENDING.
-        We do NOT guess WIN/LOSS.
-      */
-
-      item.result =
-        "PENDING";
-
-      saveHistory();
-
-      renderHistory();
-
-      return;
-    }
-
-
-    const exitPrice =
-      getLatestPrice(data);
-
-
-    if (
-      exitPrice === null ||
-      exitPrice === undefined
-    ) {
-
-      item.result =
-        "PENDING";
-
-      saveHistory();
-
-      renderHistory();
-
-      return;
-    }
-
-
-    item.exitPrice =
-      Number(exitPrice);
-
-
-    /* ------------------------------------------
-       RESULT RULES
-
-       BUY:
-       Exit > Entry = WIN
-       Exit < Entry = LOSS
-
-       SELL:
-       Exit < Entry = WIN
-       Exit > Entry = LOSS
-
-       Equal = PENDING
-    ------------------------------------------ */
-
-    if (item.signal === "BUY") {
-
-      if (
-        item.exitPrice >
-        item.entryPrice
-      ) {
-
-        item.result = "WIN";
-
-      } else if (
-        item.exitPrice <
-        item.entryPrice
-      ) {
-
-        item.result = "LOSS";
-
-      } else {
-
-        item.result = "PENDING";
-      }
-    }
-
-
-    if (item.signal === "SELL") {
-
-      if (
-        item.exitPrice <
-        item.entryPrice
-      ) {
-
-        item.result = "WIN";
-
-      } else if (
-        item.exitPrice >
-        item.entryPrice
-      ) {
-
-        item.result = "LOSS";
-
-      } else {
-
-        item.result = "PENDING";
-      }
-    }
-
-
-    if (
-      item.result === "WIN" ||
-      item.result === "LOSS"
-    ) {
-
-      item.checked = true;
-    }
-
-
-    saveHistory();
-
-    renderHistory();
-
-
-  } catch (error) {
-
-    console.error(
-      "Result check error:",
-      error
-    );
-
-  }
-}
-
-
-/* ==================================================
-   SAVE HISTORY
-================================================== */
-
-function saveHistory() {
-
-  localStorage.setItem(
-    "quotex_signal_history",
-    JSON.stringify(history)
-  );
-}
-
-
-/* ==================================================
-   STATS
-================================================== */
-
-function calculateStats() {
-
-  let wins = 0;
-
-  let losses = 0;
-
-  let buys = 0;
-
-  let sells = 0;
-
-
-  history.forEach(
-    item => {
-
-      if (item.signal === "BUY") {
-        buys++;
-      }
-
-      if (item.signal === "SELL") {
-        sells++;
-      }
-
-      if (item.result === "WIN") {
-        wins++;
-      }
-
-      if (item.result === "LOSS") {
-        losses++;
-      }
-
-    }
-  );
-
-
-  const totalSignals =
-    buys + sells;
-
-  const completed =
-    wins + losses;
-
-
-  let winRate = 0;
-
-  if (completed > 0) {
-
-    winRate =
-      (wins / completed) * 100;
-  }
-
-
-  document.getElementById(
-    "winCount"
-  ).textContent = wins;
-
-
-  document.getElementById(
-    "lossCount"
-  ).textContent = losses;
-
-
-  document.getElementById(
-    "winRate"
-  ).textContent =
-    winRate.toFixed(1) + "%";
-
-
-  document.getElementById(
-    "totalSignals"
-  ).textContent =
-    totalSignals;
-
-
-  document.getElementById(
-    "buyCount"
-  ).textContent =
-    buys;
-
-
-  document.getElementById(
-    "sellCount"
-  ).textContent =
-    sells;
-}
-
-
-/* ==================================================
-   RENDER HISTORY
-================================================== */
-
-function renderHistory() {
-
-  historyBody.innerHTML = "";
-
-
-  if (history.length === 0) {
-
-    historyBody.innerHTML =
-      `
-      <tr>
-        <td colspan="6">
-          No signals yet
-        </td>
-      </tr>
-      `;
-
-    calculateStats();
-
-    return;
-  }
-
-
-  history.forEach(
-    item => {
-
-      const row =
-        document.createElement("tr");
-
-
-      const localTime =
-        new Date(
-          item.time
-        ).toLocaleTimeString(
-          "en-IN",
-          {
-            timeZone:
-              "Asia/Kolkata",
-            hour12: false
-          }
-        );
-
-
-      const signalClass =
-        item.signal === "BUY"
-          ? "win"
-          : "loss";
-
-
-      const resultClass =
-        item.result === "WIN"
-          ? "win"
-          : item.result === "LOSS"
-            ? "loss"
-            : "pending";
-
-
-      row.innerHTML =
-        `
-        <td>${localTime}</td>
-
-        <td>${formatPair(item.pair)}</td>
-
-        <td class="${signalClass}">
-          ${item.signal}
-        </td>
-
-        <td>
-          ${formatPrice(item.entryPrice)}
-        </td>
-
-        <td>
-          ${
-            item.exitPrice !== null
-              ? formatPrice(item.exitPrice)
-              : "--"
-          }
-        </td>
-
-        <td class="${resultClass}">
-          ${item.result}
-        </td>
-        `;
-
-
-      historyBody.appendChild(row);
-
-    }
-  );
-
-
-  calculateStats();
-}
-
-
-/* ==================================================
-   FORMAT PAIR
-================================================== */
-
-function formatPair(pair) {
-
-  return pair
-    .replace("_otc", "")
-    .replace(
-      "EURUSD",
-      "EUR/USD"
-    )
-    .replace(
-      "GBPUSD",
-      "GBP/USD"
-    )
-    .replace(
-      "USDJPY",
-      "USD/JPY"
-    )
-    .replace(
-      "AUDUSD",
-      "AUD/USD"
-    )
-    .replace(
-      "USDCAD",
-      "USD/CAD"
-    )
-    .replace(
-      "EURJPY",
-      "EUR/JPY"
-    )
-    .replace(
-      "GBPJPY",
-      "GBP/JPY"
-    );
-}
-
-
-/* ==================================================
-   FORMAT PRICE
-================================================== */
-
-function formatPrice(price) {
-
-  if (
-    price === null ||
-    price === undefined
-  ) {
-
-    return "--";
-  }
-
-
-  const number =
-    Number(price);
-
-
-  if (!Number.isFinite(number)) {
-    return "--";
-  }
-
-
-  return number.toFixed(5);
-}
-
-
-/* ==================================================
-   COUNTDOWN
-================================================== */
-
-function resetCountdown() {
-
-  clearInterval(
-    countdownTimer
-  );
-
-
-  countdown =
-    EXPIRY_SECONDS;
-
-
-  countdownElement.textContent =
-    countdown;
-
-
-  countdownTimer =
-    setInterval(
-      function () {
-
-        countdown--;
-
-        countdownElement.textContent =
-          countdown;
-
-
-        if (countdown <= 0) {
-
-          clearInterval(
-            countdownTimer
-          );
-
-
-          generateSignal();
-        }
-
-      },
-      1000
-    );
-}
-
-
-/* ==================================================
-   CLEAR HISTORY
-================================================== */
-
-document
-  .getElementById(
-    "clearHistoryBtn"
-  )
-  .addEventListener(
-    "click",
-    function () {
-
-      if (
-        confirm(
-          "Clear all signal history?"
-        )
-      ) {
-
-        history = [];
-
-        saveHistory();
-
-        renderHistory();
-      }
-
-    }
-  );
-
-
-/* ==================================================
-   BUTTON
-================================================== */
-
-generateBtn.addEventListener(
-  "click",
-  generateSignal
-);
-
-
-/* ==================================================
-   INITIAL LOAD
-================================================== */
-
-renderHistory();
-
-resetCountdown();
-
-generateSignal();
 
 </script>
 
