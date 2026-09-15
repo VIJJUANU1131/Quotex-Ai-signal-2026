@@ -1,8 +1,6 @@
 exports.handler = async function (event) {
   try {
     const params = event.queryStringParameters || {};
-
-    // User selected pair
     const symbol = params.symbol || "AUDNZD_otc";
 
     const allowedPairs = [
@@ -19,7 +17,6 @@ exports.handler = async function (event) {
       "USDPHP_otc"
     ];
 
-    // Prevent unsupported symbols
     if (!allowedPairs.includes(symbol)) {
       return {
         statusCode: 400,
@@ -30,29 +27,24 @@ exports.handler = async function (event) {
         body: JSON.stringify({
           status: "ERROR",
           market: "QUOTEX_OTC",
-          symbol: symbol,
+          symbol,
           timeframe: "M1",
           signal: "WAIT",
           strength: 0,
           price: null,
-          message: "This OTC pair is not in the current configured list."
+          message: "Unsupported OTC pair"
         })
       };
     }
 
-    const apiUrl =
+    const backendUrl =
       "https://quotex-otc-backend.onrender.com/api/v1/candles?symbol=" +
       encodeURIComponent(symbol);
 
-    const response = await fetch(apiUrl);
-
+    const response = await fetch(backendUrl);
     const data = await response.json();
 
-    // Backend says Quotex access is blocked
-    if (
-      !response.ok ||
-      data.error === "QUOTEX_ACCESS_BLOCKED"
-    ) {
+    if (!response.ok || data.error === "QUOTEX_ACCESS_BLOCKED") {
       return {
         statusCode: 503,
         headers: {
@@ -62,13 +54,12 @@ exports.handler = async function (event) {
         body: JSON.stringify({
           status: "OFFLINE",
           market: "QUOTEX_OTC",
-          symbol: symbol,
+          symbol,
           timeframe: "M1",
           signal: "WAIT",
           strength: 0,
           price: null,
-          message:
-            "Quotex OTC live data is unavailable. No fake signal generated."
+          message: "Real Quotex OTC data unavailable"
         })
       };
     }
@@ -81,8 +72,9 @@ exports.handler = async function (event) {
       },
       body: JSON.stringify({
         ...data,
-        symbol: symbol,
+        status: "ONLINE",
         market: "QUOTEX_OTC",
+        symbol,
         timeframe: "M1"
       })
     };
