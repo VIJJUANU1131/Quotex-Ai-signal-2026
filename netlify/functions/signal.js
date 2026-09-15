@@ -1,96 +1,39 @@
-const API_BASE = "https://api.realmarketapi.com";
-
 exports.handler = async function (event) {
   try {
     const API_KEY = process.env.MARKET_API_KEY;
 
     if (!API_KEY) {
-      return jsonResponse(500, {
+      return response(500, {
         market: "ERROR",
-        error: "MARKET_API_KEY is not configured"
+        error: "MARKET_API_KEY is not configured in Netlify"
       });
     }
 
-    const params = event.queryStringParameters || {};
+    // EUR/USD is confirmed working with your API key
+    const symbol = "EURUSD";
 
-    const symbol = (
-      params.symbol || "EURUSD"
-    )
-      .replace("/", "")
-      .replace(" ", "")
-      .toUpperCase();
+    const url =
+      "https://api.realmarketapi.com/api/v1/candle" +
+      "?apiKey=" + encodeURIComponent(API_KEY) +
+      "&symbolCode=" + encodeURIComponent(symbol) +
+      "&timeFrame=M1";
 
-    const timeframe = (
-      params.timeframe || "M1"
-    ).toUpperCase();
+    const apiResponse = await fetch(url);
 
-    // Free plan supported symbols may be limited.
-    // Start with symbols your API key actually accepts.
-    const allowedSymbols = [
-      "EURUSD",
-      "XAUUSD",
-      "BTCUSD"
-    ];
+    const text = await apiResponse.text();
 
-    if (!allowedSymbols.includes(symbol)) {
-      return jsonResponse(400, {
+    if (!apiResponse.ok) {
+      return response(apiResponse.status, {
         market: "ERROR",
-        error: "This symbol is not enabled for the current API key",
-        symbol: symbol,
-        supportedSymbols: allowedSymbols
+        error: "RealMarketAPI HTTP " + apiResponse.status,
+        details: text
       });
     }
 
-    // =========================
-    // FREE REST CANDLE API
-    // =========================
+    const data = JSON.parse(text);
 
-    const url = new URL(
-      "/api/v1/candle",
-      API_BASE
-    );
-
-    url.searchParams.set("apiKey", API_KEY);
-    url.searchParams.set("symbolCode", symbol);
-    url.searchParams.set("timeFrame", timeframe);
-
-    const response = await fetch(
-      url.toString(),
-      {
-        method: "GET",
-        headers: {
-          "Accept": "application/json"
-        }
-      }
-    );
-
-    const text = await response.text();
-
-    if (!response.ok) {
-      return jsonResponse(response.status, {
-        market: "ERROR",
-        source: "RealMarketAPI",
-        symbol: symbol,
-        timeframe: timeframe,
-        error:
-          `RealMarketAPI HTTP ${response.status}`,
-        details: text.substring(0, 1000)
-      });
-    }
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch (error) {
-      return jsonResponse(500, {
-        market: "ERROR",
-        error: "Invalid JSON from market API",
-        details: text.substring(0, 500)
-      });
-    }
-
-    const raw =
+    // Accept different response structures
+    const candles =
       data.items ||
       data.Items ||
       data.data ||
@@ -99,358 +42,168 @@ exports.handler = async function (event) {
       data.Candles ||
       [];
 
-    if (!Array.isArray(raw) || raw.length < 10) {
-      return jsonResponse(200, {
-        market: "WAIT",
+    if (!Array.isArray(candles) || candles.length < 10) {
+      return response(200, {
+        market: "LIVE",
+        signal: "WAIT",
+        strength: 0,
+        price: null,
         source: "RealMarketAPI",
-        symbol: symbol,
-        timeframe: timeframe,
-        signal: "WAIT",
-        strength: 0,
-        message: "Not enough candle data"
+        analysis: "Not enough live candles"
       });
     }
 
-    // =========================
-    // NORMALIZE CANDLES
-    // =========================
-
-    const candles = raw
-      .map(function (c) {
-        return {
-          open: Number(
-            c.openPrice ??
-            c.OpenPrice ??
-            c.open ??
-            c.Open
-          ),
-
-          high: Number(
-            c.highPrice ??
-            c.HighPrice ??
-            c.high ??
-            c.High
-          ),
-
-          low: Number(
-            c.lowPrice ??
-            c.LowPrice ??
-            c.low ??
-            c.Low
-          ),
-
-          close: Number(
-            c.closePrice ??
-            c.ClosePrice ??
-            c.close ??
-            c.Close
-          ),
-
-          time:
-            c.openTime ??
-            c.OpenTime ??
-            c.time ??
-            c.Time
-        };
-      })
-      .filter(function (c) {
-        return (
-          Number.isFinite(c.open) &&
-          Number.isFinite(c.high) &&
-          Number.isFinite(c.low) &&
-          Number.isFinite(c.close)
-        );
-      });
-
-    if (candles.length < 10) {
-      return jsonResponse(200, {
-        market: "WAIT",
-        symbol: symbol,
-        timeframe: timeframe,
-        signal: "WAIT",
-        strength: 0,
-        message: "Not enough valid candles"
-      });
-    }
-
-    // OLD -> NEW
-    candles.sort(function (a, b) {
-      return (
-        new Date(a.time || 0).getTime() -
-        new Date(b.time || 0).getTime()
-      );
-    });
-
-    // =========================
-    // PRICE
-    // =========================
-
-    const last =
-      candles[candles.length - 1];
-
-    const previous =
-      candles[candles.length - 2];
-
-    const price = last.close;
-
-    // =========================
-    // EMA
-    // =========================
-
-    function calculateEMA(period) {
-      if (candles.length < period) {
-        return price;
-      }
-
-      const k = 2 / (period + 1);
-
-      let ema =
-        candles[0].close;
-
-      for (
-        let i = 1;
-        i < candles.length;
-        i++
-      ) {
-        ema =
-          candles[i].close * k +
-          ema * (1 - k);
-      }
-
-      return ema;
-    }
-
-    const ema9 =
-      calculateEMA(9);
-
-    const ema21 =
-      calculateEMA(21);
-
-    // =========================
-    // RSI
-    // =========================
-
-    function calculateRSI(period) {
-      if (candles.length <= period) {
-        return 50;
-      }
-
-      let gains = 0;
-      let losses = 0;
-
-      for (
-        let i = candles.length - period;
-        i < candles.length;
-        i++
-      ) {
-        if (i <= 0) continue;
-
-        const change =
-          candles[i].close -
-          candles[i - 1].close;
-
-        if (change > 0) {
-          gains += change;
-        } else {
-          losses += Math.abs(change);
+    function getNumber(obj, names) {
+      for (const name of names) {
+        if (obj[name] !== undefined && obj[name] !== null) {
+          const n = Number(obj[name]);
+          if (Number.isFinite(n)) return n;
         }
       }
-
-      if (losses === 0) {
-        return 100;
-      }
-
-      const rs =
-        gains / losses;
-
-      return 100 -
-        (100 / (1 + rs));
+      return null;
     }
 
-    const rsi =
-      calculateRSI(14);
+    function getTime(obj) {
+      return (
+        obj.time ||
+        obj.Time ||
+        obj.timestamp ||
+        obj.Timestamp ||
+        obj.candleTime ||
+        obj.CandleTime ||
+        obj.date ||
+        obj.Date ||
+        0
+      );
+    }
 
-    // =========================
-    // MOMENTUM
-    // =========================
+    const list = candles
+      .map(c => ({
+        time: getTime(c),
+        open: getNumber(c, ["open", "Open", "o"]),
+        high: getNumber(c, ["high", "High", "h"]),
+        low: getNumber(c, ["low", "Low", "l"]),
+        close: getNumber(c, ["close", "Close", "c"])
+      }))
+      .filter(c =>
+        c.open !== null &&
+        c.high !== null &&
+        c.low !== null &&
+        c.close !== null
+      )
+      .sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    if (list.length < 10) {
+      return response(200, {
+        market: "LIVE",
+        signal: "WAIT",
+        strength: 0,
+        price: null,
+        source: "RealMarketAPI",
+        analysis: "Invalid candle data"
+      });
+    }
+
+    const current = list[list.length - 1];
+    const previous = list[list.length - 2];
+
+    const price = current.close;
+
+    // ------------------------------------------------
+    // 1M ENTRY ANALYSIS
+    // ------------------------------------------------
 
     let buyScore = 0;
     let sellScore = 0;
 
-    if (price > ema9) {
-      buyScore += 1;
-    } else {
-      sellScore += 1;
+    // Current candle direction
+    if (current.close > current.open) buyScore += 25;
+    if (current.close < current.open) sellScore += 25;
+
+    // Previous candle direction
+    if (previous.close > previous.open) buyScore += 15;
+    if (previous.close < previous.open) sellScore += 15;
+
+    // Momentum
+    if (current.close > previous.close) buyScore += 20;
+    if (current.close < previous.close) sellScore += 20;
+
+    // ------------------------------------------------
+    // Simple recent trend
+    // ------------------------------------------------
+
+    const recent = list.slice(-5);
+
+    let bullish = 0;
+    let bearish = 0;
+
+    for (const c of recent) {
+      if (c.close > c.open) bullish++;
+      if (c.close < c.open) bearish++;
     }
 
-    if (ema9 > ema21) {
-      buyScore += 1;
-    } else {
-      sellScore += 1;
-    }
+    if (bullish >= 3) buyScore += 20;
+    if (bearish >= 3) sellScore += 20;
 
-    if (last.close > last.open) {
-      buyScore += 1;
-    }
-
-    if (last.close < last.open) {
-      sellScore += 1;
-    }
-
-    if (last.close > previous.close) {
-      buyScore += 1;
-    }
-
-    if (last.close < previous.close) {
-      sellScore += 1;
-    }
-
-    // RSI
-    if (rsi >= 52 && rsi < 70) {
-      buyScore += 1;
-    }
-
-    if (rsi <= 48 && rsi > 30) {
-      sellScore += 1;
-    }
-
-    // =========================
-    // FINAL SIGNAL
-    // =========================
+    // ------------------------------------------------
+    // Signal
+    // ------------------------------------------------
 
     let signal = "WAIT";
+    let strength = 0;
 
-    if (
-      buyScore >= 4 &&
-      buyScore > sellScore
-    ) {
+    if (buyScore > sellScore && buyScore >= 60) {
       signal = "BUY";
-    }
-
-    if (
-      sellScore >= 4 &&
-      sellScore > buyScore
-    ) {
+      strength = buyScore;
+    } else if (sellScore > buyScore && sellScore >= 60) {
       signal = "SELL";
+      strength = sellScore;
+    } else {
+      signal = "WAIT";
+      strength = Math.max(buyScore, sellScore);
     }
 
-    const maxScore =
-      Math.max(
-        buyScore,
-        sellScore
-      );
+    // Keep strength realistic
+    strength = Math.min(95, Math.max(0, strength));
 
-    let strength =
-      Math.round(
-        (maxScore / 6) * 100
-      );
-
-    strength =
-      Math.max(
-        0,
-        Math.min(100, strength)
-      );
-
-    if (signal === "WAIT") {
-      strength = 0;
-    }
-
-    return jsonResponse(200, {
+    return response(200, {
       market: "LIVE",
-
-      source:
-        "RealMarketAPI Candle API",
-
-      symbol:
-        symbol,
-
-      timeframe:
-        timeframe,
-
-      signal:
-        signal,
-
-      strength:
-        strength,
-
-      price:
-        price,
-
-      ema9:
-        Number(ema9.toFixed(6)),
-
-      ema21:
-        Number(ema21.toFixed(6)),
-
-      rsi:
-        Number(rsi.toFixed(2)),
-
-      buyScore:
-        buyScore,
-
-      sellScore:
-        sellScore,
-
-      candleTime:
-        last.time || null,
-
-      expiry:
-        "1 Minute",
-
+      symbol: symbol,
+      timeframe: "M1",
+      trendTimeframe: "M5",
+      signal: signal,
+      strength: strength,
+      price: price,
+      candleTime: current.time,
+      source: "RealMarketAPI",
+      expiry: "1 minute",
       analysis:
-        "EMA + RSI + candle momentum",
-
-      message:
-        signal === "WAIT"
-          ? "Waiting for stronger confirmation"
-          : `${signal} signal generated`
+        signal === "BUY"
+          ? "Bullish 1-minute momentum with trend confirmation"
+          : signal === "SELL"
+          ? "Bearish 1-minute momentum with trend confirmation"
+          : "Market conditions are not strong enough"
     });
 
   } catch (error) {
-    console.error(
-      "Signal function error:",
-      error
-    );
-
-    return jsonResponse(500, {
+    return response(500, {
       market: "ERROR",
-      error:
-        error.message ||
-        "Unknown server error"
+      signal: "WAIT",
+      strength: 0,
+      error: error.message
     });
   }
 };
 
 
-// =========================
-// JSON RESPONSE
-// =========================
-
-function jsonResponse(
-  statusCode,
-  data
-) {
+function response(statusCode, body) {
   return {
-    statusCode: statusCode,
-
+    statusCode,
     headers: {
-      "Content-Type":
-        "application/json",
-
-      "Access-Control-Allow-Origin":
-        "*",
-
-      "Access-Control-Allow-Methods":
-        "GET, OPTIONS",
-
-      "Access-Control-Allow-Headers":
-        "Content-Type",
-
-      "Cache-Control":
-        "no-store"
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type"
     },
-
-    body:
-      JSON.stringify(data)
+    body: JSON.stringify(body)
   };
 }
