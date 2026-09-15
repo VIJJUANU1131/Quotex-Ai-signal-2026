@@ -4,217 +4,252 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Quotex AI Signal - Live</title>
+<title>Quotex AI Signal - Live 1 Minute</title>
 
 <style>
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
 }
 
 body {
-  background: #07111f;
-  color: #ffffff;
-  padding: 12px;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #07101f;
+  color: white;
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 900px;
   margin: auto;
+  padding: 18px;
 }
 
 h1 {
   text-align: center;
-  color: #00e0ff;
-  margin: 10px 0 5px;
-}
-
-.sub {
-  text-align: center;
-  color: #9db3c8;
-  margin-bottom: 18px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
+  margin: 10px 0 25px;
+  font-size: 30px;
 }
 
 .card {
-  background: #111c2c;
-  border: 1px solid #22334a;
-  border-radius: 14px;
-  padding: 16px;
+  background: #101d30;
+  border: 1px solid #263b57;
+  border-radius: 22px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
 
 .label {
-  color: #8fa4b8;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.value {
-  font-size: 23px;
-  font-weight: bold;
-}
-
-.buy {
-  color: #00ff88;
-}
-
-.sell {
-  color: #ff4d67;
-}
-
-.win {
-  color: #00ff88;
-}
-
-.loss {
-  color: #ff4d67;
-}
-
-.rate {
-  color: #00d4ff;
-}
-
-.live {
-  color: #00ff88;
-}
-
-.wait {
-  color: #ffd166;
-}
-
-.error {
-  color: #ff6b6b;
+  color: #91a5bf;
+  font-size: 18px;
+  margin-bottom: 12px;
 }
 
 select,
 button {
   width: 100%;
-  padding: 13px;
-  border-radius: 10px;
-  border: none;
-  margin-top: 6px;
-  font-size: 16px;
+  padding: 17px;
+  border-radius: 14px;
+  font-size: 18px;
 }
 
 select {
-  background: #18263a;
+  background: #17263a;
   color: white;
+  border: 2px solid white;
 }
 
 button {
-  background: #00d4ff;
-  color: #001019;
+  border: none;
+  background: #08c9ef;
+  color: #00121d;
   font-weight: bold;
   cursor: pointer;
+  margin-top: 10px;
 }
 
-button:disabled {
-  opacity: 0.55;
-  cursor: wait;
+button:active {
+  transform: scale(0.98);
 }
 
-.signal-box {
-  margin-top: 16px;
-  text-align: center;
-  padding: 22px;
-  border-radius: 14px;
-  background: #101d2c;
-  border: 1px solid #22334a;
-}
-
-.signal {
-  font-size: 46px;
-  font-weight: bold;
-  margin: 12px 0;
-}
-
-.countdown {
-  font-size: 40px;
-  margin: 8px 0 15px;
-  color: #00d4ff;
+.timeframe {
+  font-size: 32px;
   font-weight: bold;
 }
 
-.price {
-  font-size: 24px;
-  margin: 8px;
-}
-
-.strength {
-  font-size: 18px;
+.clock {
+  font-size: 32px;
   font-weight: bold;
 }
 
 .status {
-  margin: 9px 0;
-  font-size: 14px;
+  font-size: 30px;
+  font-weight: bold;
 }
 
-.history-card {
-  margin-top: 16px;
+.status.live {
+  color: #00e676;
+}
+
+.status.error {
+  color: #ff6464;
+}
+
+.status.wait {
+  color: #ffc94d;
+}
+
+.signal-card {
+  text-align: center;
+}
+
+.signal-title {
+  color: #91a5bf;
+  font-size: 22px;
+}
+
+.signal {
+  font-size: 64px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.buy {
+  color: #00e676;
+}
+
+.sell {
+  color: #ff5252;
+}
+
+.wait {
+  color: #ffc94d;
+}
+
+.price {
+  font-size: 30px;
+  margin: 10px 0;
+}
+
+.strength {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.message {
+  margin-top: 15px;
+  color: #ff7777;
+  font-size: 17px;
+}
+
+.countdown-title {
+  margin-top: 25px;
+  font-size: 20px;
+}
+
+.countdown {
+  font-size: 55px;
+  color: #00cfff;
+  font-weight: bold;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  background: #17263a;
+  border-radius: 15px;
+  padding: 18px;
+  text-align: center;
+}
+
+.stat-title {
+  color: #91a5bf;
+  font-size: 15px;
+}
+
+.stat-value {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.win {
+  color: #00e676;
+}
+
+.loss {
+  color: #ff5252;
+}
+
+.rate {
+  color: #ffc94d;
+}
+
+.history {
   overflow-x: auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  min-width: 700px;
+  min-width: 650px;
 }
 
 th,
 td {
-  padding: 9px;
-  border-bottom: 1px solid #26374e;
+  padding: 12px;
+  border-bottom: 1px solid #293c55;
   text-align: center;
-  font-size: 13px;
 }
 
 th {
-  color: #00d4ff;
+  color: #91a5bf;
 }
 
-.notice {
-  margin-top: 16px;
-  padding: 12px;
-  border-radius: 10px;
-  background: #1c2636;
-  color: #ffcc66;
-  font-size: 12px;
-  line-height: 1.5;
+.pending {
+  color: #ffc94d;
 }
 
-.badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-  background: #162b3d;
-  color: #00d4ff;
-  font-size: 12px;
+.small {
+  color: #91a5bf;
+  font-size: 13px;
+  margin-top: 10px;
 }
 
-@media (max-width: 600px) {
-  body {
-    padding: 8px;
+.clear-btn {
+  background: #26384f;
+  color: white;
+  margin-top: 15px;
+}
+
+@media(max-width:600px) {
+
+  .container {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
   }
 
   .signal {
-    font-size: 38px;
+    font-size: 52px;
   }
 
   .countdown {
-    font-size: 32px;
-  }
-
-  .value {
-    font-size: 20px;
+    font-size: 48px;
   }
 }
 </style>
@@ -224,203 +259,177 @@ th {
 
 <div class="container">
 
-  <h1>Quotex AI Signal</h1>
+<h1>Quotex AI Signal - Live 1 Minute</h1>
 
-  <div class="sub">
-    LIVE Market Analysis •
-    <span class="badge">1 MINUTE</span>
+<!-- PAIR -->
+<div class="card">
+
+  <div class="label">Currency Pair</div>
+
+  <select id="pairSelect">
+    <option value="EURUSD_otc">EUR/USD OTC</option>
+    <option value="GBPUSD_otc">GBP/USD OTC</option>
+    <option value="USDJPY_otc">USD/JPY OTC</option>
+    <option value="AUDUSD_otc">AUD/USD OTC</option>
+    <option value="USDCAD_otc">USD/CAD OTC</option>
+    <option value="EURJPY_otc">EUR/JPY OTC</option>
+    <option value="GBPJPY_otc">GBP/JPY OTC</option>
+  </select>
+
+</div>
+
+<!-- TIME FRAME -->
+<div class="card">
+
+  <div class="label">Time Frame</div>
+
+  <div class="timeframe">
+    1 Minute
   </div>
 
-  <!-- WIN LOSS -->
+</div>
 
-  <div class="grid">
+<!-- INDIAN TIME -->
+<div class="card">
 
-    <div class="card">
-      <div class="label">WIN</div>
-      <div class="value win" id="winCount">0</div>
-    </div>
+  <div class="label">Indian Time</div>
 
-    <div class="card">
-      <div class="label">LOSS</div>
-      <div class="value loss" id="lossCount">0</div>
-    </div>
-
-    <div class="card">
-      <div class="label">WIN RATE</div>
-      <div class="value rate" id="winRate">0%</div>
-    </div>
-
+  <div class="clock" id="indiaTime">
+    --:--:--
   </div>
 
-  <!-- MARKET -->
+</div>
 
-  <div class="grid" style="margin-top:12px;">
+<!-- MARKET STATUS -->
+<div class="card">
 
-    <div class="card">
+  <div class="label">Market Status</div>
 
-      <div class="label">
-        Currency Pair
-      </div>
-
-      <select id="pair">
-
-        <option value="EURUSD">
-          EUR/USD
-        </option>
-
-        <option value="GBPUSD">
-          GBP/USD
-        </option>
-
-        <option value="USDJPY">
-          USD/JPY
-        </option>
-
-        <option value="AUDUSD">
-          AUD/USD
-        </option>
-
-        <option value="USDCAD">
-          USD/CAD
-        </option>
-
-        <option value="EURJPY">
-          EUR/JPY
-        </option>
-
-        <option value="GBPJPY">
-          GBP/JPY
-        </option>
-
-      </select>
-
-    </div>
-
-    <div class="card">
-
-      <div class="label">
-        Time Frame
-      </div>
-
-      <div class="value">
-        1 Minute
-      </div>
-
-    </div>
-
-    <div class="card">
-
-      <div class="label">
-        Indian Time
-      </div>
-
-      <div class="value" id="indiaTime">
-        --:--:--
-      </div>
-
-    </div>
-
-    <div class="card">
-
-      <div class="label">
-        Market Status
-      </div>
-
-      <div class="value live" id="marketStatus">
-        LIVE
-      </div>
-
-    </div>
-
+  <div id="marketStatus" class="status wait">
+    CHECKING
   </div>
 
-  <!-- SIGNAL -->
+</div>
 
-  <div class="signal-box">
+<!-- SIGNAL -->
+<div class="card signal-card">
 
-    <div class="label">
-      CURRENT LIVE SIGNAL
-    </div>
-
-    <div id="signal" class="signal wait">
-      WAIT
-    </div>
-
-    <div id="price" class="price">
-      Price: --
-    </div>
-
-    <div id="strength" class="strength">
-      Strength: --
-    </div>
-
-    <div id="status" class="status">
-      Ready
-    </div>
-
-    <div>
-      Next analysis in
-    </div>
-
-    <div id="countdown" class="countdown">
-      60
-    </div>
-
-    <button id="signalButton">
-      Generate Live Signal
-    </button>
-
+  <div class="signal-title">
+    CURRENT LIVE SIGNAL
   </div>
 
-  <!-- COUNTERS -->
+  <div id="signal" class="signal wait">
+    WAIT
+  </div>
 
-  <div class="grid" style="margin-top:16px;">
+  <div class="price">
+    Price:
+    <span id="price">--</span>
+  </div>
 
-    <div class="card">
+  <div class="strength">
+    Strength:
+    <span id="strength">--</span>
+  </div>
 
-      <div class="label">
-        Total Signals
-      </div>
+  <div id="message" class="message">
+    Waiting for live market data...
+  </div>
 
-      <div class="value" id="totalSignals">
+  <div class="countdown-title">
+    Next analysis in
+  </div>
+
+  <div id="countdown" class="countdown">
+    60
+  </div>
+
+  <button id="generateBtn">
+    Generate Live Signal
+  </button>
+
+</div>
+
+<!-- STATS -->
+<div class="card">
+
+  <div class="label">
+    Result Tracker
+  </div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-title">WIN</div>
+      <div id="winCount" class="stat-value win">
         0
       </div>
-
     </div>
 
-    <div class="card">
-
-      <div class="label">
-        BUY Signals
-      </div>
-
-      <div class="value buy" id="buySignals">
+    <div class="stat">
+      <div class="stat-title">LOSS</div>
+      <div id="lossCount" class="stat-value loss">
         0
       </div>
-
     </div>
 
-    <div class="card">
-
-      <div class="label">
-        SELL Signals
+    <div class="stat">
+      <div class="stat-title">WIN RATE</div>
+      <div id="winRate" class="stat-value rate">
+        0%
       </div>
-
-      <div class="value sell" id="sellSignals">
-        0
-      </div>
-
     </div>
 
   </div>
 
-  <!-- HISTORY -->
+  <div class="small">
+    WIN RATE = confirmed WIN ÷ confirmed BUY/SELL results.
+  </div>
 
-  <div class="card history-card">
+</div>
 
-    <div class="label">
-      Live Signal History
+<!-- SIGNAL TOTALS -->
+<div class="card">
+
+  <div class="label">
+    Signal Statistics
+  </div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-title">TOTAL SIGNALS</div>
+      <div id="totalSignals" class="stat-value">
+        0
+      </div>
     </div>
+
+    <div class="stat">
+      <div class="stat-title">BUY</div>
+      <div id="buyCount" class="stat-value win">
+        0
+      </div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-title">SELL</div>
+      <div id="sellCount" class="stat-value loss">
+        0
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- HISTORY -->
+<div class="card">
+
+  <div class="label">
+    Signal History
+  </div>
+
+  <div class="history">
 
     <table>
 
@@ -430,219 +439,187 @@ th {
           <th>Time</th>
           <th>Pair</th>
           <th>Signal</th>
-          <th>Strength</th>
-          <th>Price</th>
-          <th>Expiry</th>
+          <th>Entry</th>
+          <th>Exit</th>
           <th>Result</th>
         </tr>
 
       </thead>
 
-      <tbody id="history"></tbody>
+      <tbody id="historyBody">
+      </tbody>
 
     </table>
 
   </div>
 
-  <div class="notice">
-
-    LIVE market data is provided by the connected
-    market-data backend.
-
-    Signal strength is a technical-analysis score
-    and is not a guaranteed prediction or guaranteed profit.
-
-    WIN/LOSS is shown as PENDING until the expiry result
-    is verified.
-
-  </div>
+  <button id="clearHistoryBtn" class="clear-btn">
+    Clear History
+  </button>
 
 </div>
 
+</div>
 
 <script>
 
-/* =========================
-   SETTINGS
-========================= */
+/* ==================================================
+   CONFIG
+================================================== */
 
-const API_URL =
-  "/.netlify/functions/signal";
+const API_URL = "/.netlify/functions/signal";
 
 const EXPIRY_SECONDS = 60;
 
-let seconds = EXPIRY_SECONDS;
 
-let loading = false;
+/* ==================================================
+   VARIABLES
+================================================== */
 
-let total = 0;
-let buys = 0;
-let sells = 0;
+let countdown = 60;
 
-let wins = 0;
-let losses = 0;
+let countdownTimer = null;
+
+let currentSignal = null;
+
+let history = JSON.parse(
+  localStorage.getItem("quotex_signal_history") || "[]"
+);
 
 
-/* =========================
-   INDIA TIME
-========================= */
+/* ==================================================
+   ELEMENTS
+================================================== */
+
+const pairSelect =
+  document.getElementById("pairSelect");
+
+const marketStatus =
+  document.getElementById("marketStatus");
+
+const signalElement =
+  document.getElementById("signal");
+
+const priceElement =
+  document.getElementById("price");
+
+const strengthElement =
+  document.getElementById("strength");
+
+const messageElement =
+  document.getElementById("message");
+
+const countdownElement =
+  document.getElementById("countdown");
+
+const generateBtn =
+  document.getElementById("generateBtn");
+
+const historyBody =
+  document.getElementById("historyBody");
+
+
+/* ==================================================
+   INDIAN TIME
+================================================== */
 
 function updateIndiaTime() {
 
   const now = new Date();
 
-  const time =
-    now.toLocaleTimeString(
-      "en-IN",
-      {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      }
-    );
+  const time = new Intl.DateTimeFormat(
+    "en-IN",
+    {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    }
+  ).format(now);
 
   document.getElementById(
     "indiaTime"
-  ).innerText = time;
+  ).textContent = time;
 }
+
+setInterval(updateIndiaTime, 1000);
 
 updateIndiaTime();
 
-setInterval(
-  updateIndiaTime,
-  1000
-);
 
+/* ==================================================
+   SAFE PRICE PARSER
+================================================== */
 
-/* =========================
-   WIN RATE
-========================= */
+function getLatestPrice(data) {
 
-function updateWinRate() {
-
-  const completed =
-    wins + losses;
-
-  let rate = 0;
-
-  if (completed > 0) {
-
-    rate =
-      (wins / completed) * 100;
+  if (!data) {
+    return null;
   }
 
-  document.getElementById(
-    "winCount"
-  ).innerText = wins;
+  if (data.price !== undefined &&
+      data.price !== null) {
 
-  document.getElementById(
-    "lossCount"
-  ).innerText = losses;
+    const p = Number(data.price);
 
-  document.getElementById(
-    "winRate"
-  ).innerText =
-    rate.toFixed(1) + "%";
+    if (Number.isFinite(p)) {
+      return p;
+    }
+  }
+
+  if (Array.isArray(data.candles) &&
+      data.candles.length > 0) {
+
+    const candle =
+      data.candles[data.candles.length - 1];
+
+    const p =
+      Number(
+        candle.close ??
+        candle.Close ??
+        candle.price
+      );
+
+    if (Number.isFinite(p)) {
+      return p;
+    }
+  }
+
+  return null;
 }
 
 
-/* =========================
-   GET SIGNAL
-========================= */
+/* ==================================================
+   GENERATE SIGNAL
+================================================== */
 
-async function getLiveSignal() {
+async function generateSignal() {
 
-  if (loading) {
-    return;
-  }
+  generateBtn.disabled = true;
 
-  loading = true;
+  marketStatus.textContent = "CHECKING";
 
-  const button =
-    document.getElementById(
-      "signalButton"
-    );
+  marketStatus.className =
+    "status wait";
 
-  const signalElement =
-    document.getElementById(
-      "signal"
-    );
-
-  const statusElement =
-    document.getElementById(
-      "status"
-    );
-
-  const marketStatus =
-    document.getElementById(
-      "marketStatus"
-    );
-
-  const pair =
-    document.getElementById(
-      "pair"
-    ).value;
-
-
-  button.disabled = true;
-
-  button.innerText =
-    "Analyzing...";
-
-
-  signalElement.className =
-    "signal wait";
-
-  signalElement.innerText =
-    "WAIT";
-
-
-  statusElement.className =
-    "status";
-
-  statusElement.innerText =
-    "Getting live market data...";
-
+  messageElement.textContent =
+    "Checking live market data...";
 
   try {
 
-    const url =
-      API_URL +
-      "?symbol=" +
-      encodeURIComponent(pair) +
-      "&timeframe=M1";
-
+    const selectedPair =
+      pairSelect.value;
 
     const response =
       await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store",
-          headers: {
-            "Accept":
-              "application/json"
-          }
-        }
+        API_URL + "?symbol=" +
+        encodeURIComponent(selectedPair) +
+        "&t=" + Date.now()
       );
 
-
-    let data;
-
-    try {
-
-      data =
-        await response.json();
-
-    } catch (e) {
-
-      throw new Error(
-        "Backend returned invalid JSON"
-      );
-    }
-
+    const data =
+      await response.json();
 
     console.log(
       "Signal API:",
@@ -650,557 +627,758 @@ async function getLiveSignal() {
     );
 
 
-    if (!response.ok) {
-
-      throw new Error(
-        data.error ||
-        data.message ||
-        "Backend API request failed"
-      );
-    }
-
-
-    /* =========================
-       WAIT RESPONSE
-    ========================= */
+    /* ------------------------------------------
+       API ERROR / OFFLINE
+    ------------------------------------------ */
 
     if (
-      !data.signal ||
-      data.signal === "WAIT"
+      !response.ok ||
+      data.status === "OFFLINE" ||
+      data.status === "ERROR" ||
+      data.error === "QUOTEX_ACCESS_BLOCKED"
     ) {
 
-      signalElement.className =
-        "signal wait";
-
-      signalElement.innerText =
-        "WAIT";
-
-
-      document.getElementById(
-        "price"
-      ).innerText =
-        data.price !== undefined
-          ? "Price: " + data.price
-          : "Price: --";
-
-
-      document.getElementById(
-        "strength"
-      ).innerText =
-        "Strength: 0%";
-
-
-      marketStatus.className =
-        "value wait";
-
-      marketStatus.innerText =
-        "WAIT";
-
-
-      statusElement.className =
-        "status wait";
-
-      statusElement.innerText =
+      showWait(
         data.message ||
-        "Waiting for stronger confirmation";
-
+        "Live market data unavailable."
+      );
 
       return;
     }
 
+
+    /* ------------------------------------------
+       SIGNAL
+    ------------------------------------------ */
 
     const signal =
       String(
-        data.signal
+        data.signal || "WAIT"
       ).toUpperCase();
 
-
-    if (
-      signal !== "BUY" &&
-      signal !== "SELL"
-    ) {
-
-      throw new Error(
-        "Invalid signal returned by backend"
-      );
-    }
-
-
-    /* =========================
-       SIGNAL DISPLAY
-    ========================= */
-
-    if (signal === "BUY") {
-
-      signalElement.className =
-        "signal buy";
-
-      signalElement.innerText =
-        "BUY";
-
-      buys++;
-
-    } else {
-
-      signalElement.className =
-        "signal sell";
-
-      signalElement.innerText =
-        "SELL";
-
-      sells++;
-    }
-
-
-    total++;
-
-
-    document.getElementById(
-      "totalSignals"
-    ).innerText = total;
-
-    document.getElementById(
-      "buySignals"
-    ).innerText = buys;
-
-    document.getElementById(
-      "sellSignals"
-    ).innerText = sells;
-
-
-    /* =========================
-       PRICE
-    ========================= */
-
-    if (
-      data.price !== undefined &&
-      data.price !== null
-    ) {
-
-      document.getElementById(
-        "price"
-      ).innerText =
-        "Price: " + data.price;
-
-    } else {
-
-      document.getElementById(
-        "price"
-      ).innerText =
-        "Price: --";
-    }
-
-
-    /* =========================
-       STRENGTH
-    ========================= */
+    const price =
+      getLatestPrice(data);
 
     const strength =
-      Number(data.strength);
+      data.strength !== undefined
+        ? data.strength
+        : "--";
 
+
+    /* ------------------------------------------
+       MARKET ONLINE
+    ------------------------------------------ */
+
+    marketStatus.textContent =
+      "LIVE";
+
+    marketStatus.className =
+      "status live";
+
+
+    /* ------------------------------------------
+       DISPLAY
+    ------------------------------------------ */
+
+    signalElement.textContent =
+      signal;
+
+    signalElement.className =
+      "signal " +
+      (
+        signal === "BUY"
+          ? "buy"
+          : signal === "SELL"
+            ? "sell"
+            : "wait"
+      );
+
+    priceElement.textContent =
+      price !== null
+        ? price
+        : "--";
+
+    strengthElement.textContent =
+      strength !== "--"
+        ? strength + "%"
+        : "--";
+
+    messageElement.textContent =
+      data.message ||
+      "Live market analysis";
+
+
+    /* ------------------------------------------
+       ONLY TRACK BUY / SELL
+    ------------------------------------------ */
 
     if (
-      Number.isFinite(strength)
+      signal === "BUY" ||
+      signal === "SELL"
     ) {
 
-      document.getElementById(
-        "strength"
-      ).innerText =
-        "Strength: " +
-        strength.toFixed(0) +
-        "%";
+      createPendingResult(
+        selectedPair,
+        signal,
+        price
+      );
 
     } else {
 
-      document.getElementById(
-        "strength"
-      ).innerText =
-        "Strength: --";
+      messageElement.textContent =
+        "WAIT — no confirmed BUY/SELL signal.";
+
     }
 
+  } catch (error) {
 
-    /* =========================
-       STATUS
-    ========================= */
+    console.error(error);
 
-    marketStatus.className =
-      "value live";
-
-    marketStatus.innerText =
-      "LIVE";
-
-
-    statusElement.className =
-      "status live";
-
-    statusElement.innerText =
-      "LIVE • " +
-      (
-        data.source ||
-        "Market API"
-      );
-
-
-    /* =========================
-       HISTORY
-    ========================= */
-
-    addHistory(
-      pair,
-      signal,
-      data.strength,
-      data.price
+    showWait(
+      "Connection error: " +
+      error.message
     );
 
+  } finally {
 
-    playSound(signal);
+    generateBtn.disabled = false;
 
+    resetCountdown();
 
-    seconds =
-      EXPIRY_SECONDS;
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Signal Error:",
-      error
-    );
-
-
-    signalElement.className =
-      "signal wait";
-
-    signalElement.innerText =
-      "WAIT";
-
-
-    marketStatus.className =
-      "value error";
-
-    marketStatus.innerText =
-      "ERROR";
-
-
-    statusElement.className =
-      "status error";
-
-    statusElement.innerText =
-      "Error: " +
-      error.message;
-
-  }
-
-  finally {
-
-    loading = false;
-
-    button.disabled = false;
-
-    button.innerText =
-      "Generate Live Signal";
   }
 }
 
 
-/* =========================
-   HISTORY
-========================= */
+/* ==================================================
+   WAIT DISPLAY
+================================================== */
 
-function addHistory(
+function showWait(message) {
+
+  marketStatus.textContent =
+    "ERROR";
+
+  marketStatus.className =
+    "status error";
+
+  signalElement.textContent =
+    "WAIT";
+
+  signalElement.className =
+    "signal wait";
+
+  priceElement.textContent =
+    "--";
+
+  strengthElement.textContent =
+    "--";
+
+  messageElement.textContent =
+    message;
+}
+
+
+/* ==================================================
+   CREATE PENDING RESULT
+================================================== */
+
+function createPendingResult(
   pair,
   signal,
-  strength,
-  price
+  entryPrice
 ) {
 
-  const table =
-    document.getElementById(
-      "history"
-    );
-
-
-  const row =
-    document.createElement(
-      "tr"
-    );
-
-
-  const time =
-    new Date().toLocaleTimeString(
-      "en-IN",
-      {
-        timeZone:
-          "Asia/Kolkata",
-        hour12: false
-      }
-    );
-
-
-  const signalColor =
-    signal === "BUY"
-      ? "#00ff88"
-      : "#ff4d67";
-
-
-  const numericStrength =
-    Number(strength);
-
-
-  const safeStrength =
-    Number.isFinite(
-      numericStrength
-    )
-      ? numericStrength.toFixed(0) + "%"
-      : "--";
-
-
-  const safePrice =
-    price !== undefined &&
-    price !== null
-      ? price
-      : "--";
-
-
-  row.innerHTML =
-
-    "<td>" +
-    time +
-    "</td>" +
-
-    "<td>" +
-    pair.slice(0, 3) +
-    "/" +
-    pair.slice(3) +
-    "</td>" +
-
-    "<td style='color:" +
-    signalColor +
-    ";font-weight:bold;'>" +
-    signal +
-    "</td>" +
-
-    "<td>" +
-    safeStrength +
-    "</td>" +
-
-    "<td>" +
-    safePrice +
-    "</td>" +
-
-    "<td>1 Minute</td>" +
-
-    "<td class='result'>PENDING</td>";
-
-
-  table.prepend(row);
-
-
-  while (
-    table.rows.length > 20
+  if (
+    entryPrice === null ||
+    entryPrice === undefined
   ) {
 
-    table.deleteRow(
-      table.rows.length - 1
-    );
+    messageElement.textContent =
+      "Signal received, but entry price is unavailable.";
+
+    return;
   }
+
+
+  const item = {
+
+    id: Date.now(),
+
+    time:
+      new Date().toISOString(),
+
+    pair: pair,
+
+    signal: signal,
+
+    entryPrice: Number(entryPrice),
+
+    exitPrice: null,
+
+    result: "PENDING",
+
+    checked: false
+  };
+
+
+  history.unshift(item);
+
+
+  /* Keep maximum 50 */
+
+  history =
+    history.slice(0, 50);
+
+
+  saveHistory();
+
+  renderHistory();
+
+
+  /* Check after 60 seconds */
+
+  setTimeout(
+    function () {
+
+      checkResult(item.id);
+
+    },
+    EXPIRY_SECONDS * 1000
+  );
 }
 
 
-/* =========================
-   COUNTDOWN
-========================= */
+/* ==================================================
+   CHECK RESULT
+================================================== */
 
-setInterval(
-  function () {
+async function checkResult(id) {
 
-    seconds--;
+  const item =
+    history.find(
+      x => x.id === id
+    );
 
-    if (seconds < 0) {
+  if (!item) {
+    return;
+  }
 
-      seconds =
-        EXPIRY_SECONDS;
-    }
+  if (item.checked) {
+    return;
+  }
 
-
-    document.getElementById(
-      "countdown"
-    ).innerText =
-      seconds;
-
-
-    if (
-      seconds === 0 &&
-      !loading
-    ) {
-
-      getLiveSignal();
-    }
-
-  },
-  1000
-);
-
-
-/* =========================
-   SOUND
-========================= */
-
-function playSound(signal) {
 
   try {
 
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
+    const response =
+      await fetch(
+        API_URL +
+        "?symbol=" +
+        encodeURIComponent(item.pair) +
+        "&t=" + Date.now()
+      );
+
+    const data =
+      await response.json();
 
 
-    if (!AudioContext) {
+    if (!response.ok) {
+
       return;
     }
 
 
-    const audio =
-      new AudioContext();
+    if (
+      data.status === "OFFLINE" ||
+      data.status === "ERROR" ||
+      data.error === "QUOTEX_ACCESS_BLOCKED"
+    ) {
+
+      /*
+        Keep PENDING.
+        We do NOT guess WIN/LOSS.
+      */
+
+      item.result =
+        "PENDING";
+
+      saveHistory();
+
+      renderHistory();
+
+      return;
+    }
 
 
-    const oscillator =
-      audio.createOscillator();
+    const exitPrice =
+      getLatestPrice(data);
 
 
-    const gain =
-      audio.createGain();
+    if (
+      exitPrice === null ||
+      exitPrice === undefined
+    ) {
+
+      item.result =
+        "PENDING";
+
+      saveHistory();
+
+      renderHistory();
+
+      return;
+    }
 
 
-    oscillator.connect(gain);
+    item.exitPrice =
+      Number(exitPrice);
 
-    gain.connect(
-      audio.destination
+
+    /* ------------------------------------------
+       RESULT RULES
+
+       BUY:
+       Exit > Entry = WIN
+       Exit < Entry = LOSS
+
+       SELL:
+       Exit < Entry = WIN
+       Exit > Entry = LOSS
+
+       Equal = PENDING
+    ------------------------------------------ */
+
+    if (item.signal === "BUY") {
+
+      if (
+        item.exitPrice >
+        item.entryPrice
+      ) {
+
+        item.result = "WIN";
+
+      } else if (
+        item.exitPrice <
+        item.entryPrice
+      ) {
+
+        item.result = "LOSS";
+
+      } else {
+
+        item.result = "PENDING";
+      }
+    }
+
+
+    if (item.signal === "SELL") {
+
+      if (
+        item.exitPrice <
+        item.entryPrice
+      ) {
+
+        item.result = "WIN";
+
+      } else if (
+        item.exitPrice >
+        item.entryPrice
+      ) {
+
+        item.result = "LOSS";
+
+      } else {
+
+        item.result = "PENDING";
+      }
+    }
+
+
+    if (
+      item.result === "WIN" ||
+      item.result === "LOSS"
+    ) {
+
+      item.checked = true;
+    }
+
+
+    saveHistory();
+
+    renderHistory();
+
+
+  } catch (error) {
+
+    console.error(
+      "Result check error:",
+      error
     );
 
-
-    oscillator.frequency.value =
-      signal === "BUY"
-        ? 800
-        : 500;
-
-
-    gain.gain.value =
-      0.08;
-
-
-    oscillator.start();
-
-
-    oscillator.stop(
-      audio.currentTime +
-      0.25
-    );
-
-  }
-
-  catch (error) {
-
-    console.log(
-      "Sound unavailable"
-    );
   }
 }
 
 
-/* =========================
-   PAIR CHANGE
-========================= */
+/* ==================================================
+   SAVE HISTORY
+================================================== */
 
-document
-  .getElementById("pair")
-  .addEventListener(
-    "change",
-    function () {
+function saveHistory() {
 
-      document.getElementById(
-        "signal"
-      ).className =
-        "signal wait";
+  localStorage.setItem(
+    "quotex_signal_history",
+    JSON.stringify(history)
+  );
+}
 
 
-      document.getElementById(
-        "signal"
-      ).innerText =
-        "WAIT";
+/* ==================================================
+   STATS
+================================================== */
+
+function calculateStats() {
+
+  let wins = 0;
+
+  let losses = 0;
+
+  let buys = 0;
+
+  let sells = 0;
 
 
-      document.getElementById(
-        "price"
-      ).innerText =
-        "Price: --";
+  history.forEach(
+    item => {
 
+      if (item.signal === "BUY") {
+        buys++;
+      }
 
-      document.getElementById(
-        "strength"
-      ).innerText =
-        "Strength: --";
+      if (item.signal === "SELL") {
+        sells++;
+      }
 
+      if (item.result === "WIN") {
+        wins++;
+      }
 
-      document.getElementById(
-        "marketStatus"
-      ).className =
-        "value live";
+      if (item.result === "LOSS") {
+        losses++;
+      }
 
-
-      document.getElementById(
-        "marketStatus"
-      ).innerText =
-        "LIVE";
-
-
-      document.getElementById(
-        "status"
-      ).className =
-        "status";
-
-
-      document.getElementById(
-        "status"
-      ).innerText =
-        "Ready for " +
-        this.value;
     }
   );
 
 
-/* =========================
-   BUTTON
-========================= */
+  const totalSignals =
+    buys + sells;
 
-document
-  .getElementById(
-    "signalButton"
-  )
-  .addEventListener(
-    "click",
-    getLiveSignal
+  const completed =
+    wins + losses;
+
+
+  let winRate = 0;
+
+  if (completed > 0) {
+
+    winRate =
+      (wins / completed) * 100;
+  }
+
+
+  document.getElementById(
+    "winCount"
+  ).textContent = wins;
+
+
+  document.getElementById(
+    "lossCount"
+  ).textContent = losses;
+
+
+  document.getElementById(
+    "winRate"
+  ).textContent =
+    winRate.toFixed(1) + "%";
+
+
+  document.getElementById(
+    "totalSignals"
+  ).textContent =
+    totalSignals;
+
+
+  document.getElementById(
+    "buyCount"
+  ).textContent =
+    buys;
+
+
+  document.getElementById(
+    "sellCount"
+  ).textContent =
+    sells;
+}
+
+
+/* ==================================================
+   RENDER HISTORY
+================================================== */
+
+function renderHistory() {
+
+  historyBody.innerHTML = "";
+
+
+  if (history.length === 0) {
+
+    historyBody.innerHTML =
+      `
+      <tr>
+        <td colspan="6">
+          No signals yet
+        </td>
+      </tr>
+      `;
+
+    calculateStats();
+
+    return;
+  }
+
+
+  history.forEach(
+    item => {
+
+      const row =
+        document.createElement("tr");
+
+
+      const localTime =
+        new Date(
+          item.time
+        ).toLocaleTimeString(
+          "en-IN",
+          {
+            timeZone:
+              "Asia/Kolkata",
+            hour12: false
+          }
+        );
+
+
+      const signalClass =
+        item.signal === "BUY"
+          ? "win"
+          : "loss";
+
+
+      const resultClass =
+        item.result === "WIN"
+          ? "win"
+          : item.result === "LOSS"
+            ? "loss"
+            : "pending";
+
+
+      row.innerHTML =
+        `
+        <td>${localTime}</td>
+
+        <td>${formatPair(item.pair)}</td>
+
+        <td class="${signalClass}">
+          ${item.signal}
+        </td>
+
+        <td>
+          ${formatPrice(item.entryPrice)}
+        </td>
+
+        <td>
+          ${
+            item.exitPrice !== null
+              ? formatPrice(item.exitPrice)
+              : "--"
+          }
+        </td>
+
+        <td class="${resultClass}">
+          ${item.result}
+        </td>
+        `;
+
+
+      historyBody.appendChild(row);
+
+    }
   );
 
 
-/* =========================
-   START
-========================= */
+  calculateStats();
+}
 
-updateWinRate();
 
-window.addEventListener(
-  "load",
-  function () {
+/* ==================================================
+   FORMAT PAIR
+================================================== */
 
-    setTimeout(
-      getLiveSignal,
-      1200
+function formatPair(pair) {
+
+  return pair
+    .replace("_otc", "")
+    .replace(
+      "EURUSD",
+      "EUR/USD"
+    )
+    .replace(
+      "GBPUSD",
+      "GBP/USD"
+    )
+    .replace(
+      "USDJPY",
+      "USD/JPY"
+    )
+    .replace(
+      "AUDUSD",
+      "AUD/USD"
+    )
+    .replace(
+      "USDCAD",
+      "USD/CAD"
+    )
+    .replace(
+      "EURJPY",
+      "EUR/JPY"
+    )
+    .replace(
+      "GBPJPY",
+      "GBP/JPY"
     );
+}
 
+
+/* ==================================================
+   FORMAT PRICE
+================================================== */
+
+function formatPrice(price) {
+
+  if (
+    price === null ||
+    price === undefined
+  ) {
+
+    return "--";
   }
+
+
+  const number =
+    Number(price);
+
+
+  if (!Number.isFinite(number)) {
+    return "--";
+  }
+
+
+  return number.toFixed(5);
+}
+
+
+/* ==================================================
+   COUNTDOWN
+================================================== */
+
+function resetCountdown() {
+
+  clearInterval(
+    countdownTimer
+  );
+
+
+  countdown =
+    EXPIRY_SECONDS;
+
+
+  countdownElement.textContent =
+    countdown;
+
+
+  countdownTimer =
+    setInterval(
+      function () {
+
+        countdown--;
+
+        countdownElement.textContent =
+          countdown;
+
+
+        if (countdown <= 0) {
+
+          clearInterval(
+            countdownTimer
+          );
+
+
+          generateSignal();
+        }
+
+      },
+      1000
+    );
+}
+
+
+/* ==================================================
+   CLEAR HISTORY
+================================================== */
+
+document
+  .getElementById(
+    "clearHistoryBtn"
+  )
+  .addEventListener(
+    "click",
+    function () {
+
+      if (
+        confirm(
+          "Clear all signal history?"
+        )
+      ) {
+
+        history = [];
+
+        saveHistory();
+
+        renderHistory();
+      }
+
+    }
+  );
+
+
+/* ==================================================
+   BUTTON
+================================================== */
+
+generateBtn.addEventListener(
+  "click",
+  generateSignal
 );
+
+
+/* ==================================================
+   INITIAL LOAD
+================================================== */
+
+renderHistory();
+
+resetCountdown();
+
+generateSignal();
 
 </script>
 
