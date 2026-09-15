@@ -19,6 +19,7 @@ exports.handler = async function () {
           timeframe: "M1",
           signal: "WAIT",
           strength: 0,
+          price: null,
           message: "Quotex OTC live data is currently unavailable."
         })
       };
@@ -40,8 +41,10 @@ exports.handler = async function () {
       },
       body: JSON.stringify({
         status: "ERROR",
+        market: "QUOTEX_OTC",
         signal: "WAIT",
         strength: 0,
+        price: null,
         message: error.message
       })
     };
