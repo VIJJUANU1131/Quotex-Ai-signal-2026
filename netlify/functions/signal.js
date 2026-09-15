@@ -7,13 +7,13 @@ exports.handler = async function (event) {
     if (!API_KEY) {
       return jsonResponse(500, {
         market: "ERROR",
-        error: "MARKET_API_KEY is not configured in Netlify"
+        error: "MARKET_API_KEY is not configured"
       });
     }
 
     const params = event.queryStringParameters || {};
 
-    let symbol = (
+    const symbol = (
       params.symbol || "EURUSD"
     )
       .replace("/", "")
@@ -24,14 +24,10 @@ exports.handler = async function (event) {
       params.timeframe || "M1"
     ).toUpperCase();
 
+    // Free plan supported symbols may be limited.
+    // Start with symbols your API key actually accepts.
     const allowedSymbols = [
       "EURUSD",
-      "GBPUSD",
-      "USDJPY",
-      "AUDUSD",
-      "USDCAD",
-      "EURJPY",
-      "GBPJPY",
       "XAUUSD",
       "BTCUSD"
     ];
@@ -39,24 +35,24 @@ exports.handler = async function (event) {
     if (!allowedSymbols.includes(symbol)) {
       return jsonResponse(400, {
         market: "ERROR",
-        error: "Symbol not supported by website",
+        error: "This symbol is not enabled for the current API key",
         symbol: symbol,
         supportedSymbols: allowedSymbols
       });
     }
 
     // =========================
-    // REAL MARKET INSIGHT API
+    // FREE REST CANDLE API
     // =========================
 
     const url = new URL(
-      "/api/v1/insight/next",
+      "/api/v1/candle",
       API_BASE
     );
 
     url.searchParams.set("apiKey", API_KEY);
-    url.searchParams.set("SymbolCode", symbol);
-    url.searchParams.set("TimeFrame", timeframe);
+    url.searchParams.set("symbolCode", symbol);
+    url.searchParams.set("timeFrame", timeframe);
 
     const response = await fetch(
       url.toString(),
@@ -70,10 +66,6 @@ exports.handler = async function (event) {
 
     const text = await response.text();
 
-    // =========================
-    // API ERROR
-    // =========================
-
     if (!response.ok) {
       return jsonResponse(response.status, {
         market: "ERROR",
@@ -82,14 +74,9 @@ exports.handler = async function (event) {
         timeframe: timeframe,
         error:
           `RealMarketAPI HTTP ${response.status}`,
-        details:
-          text.substring(0, 1000)
+        details: text.substring(0, 1000)
       });
     }
-
-    // =========================
-    // PARSE JSON
-    // =========================
 
     let data;
 
@@ -98,127 +85,233 @@ exports.handler = async function (event) {
     } catch (error) {
       return jsonResponse(500, {
         market: "ERROR",
-        source: "RealMarketAPI",
-        error: "Invalid JSON response",
+        error: "Invalid JSON from market API",
         details: text.substring(0, 500)
       });
     }
 
-    // =========================
-    // READ API VALUES
-    // =========================
+    const raw =
+      data.items ||
+      data.Items ||
+      data.data ||
+      data.Data ||
+      data.candles ||
+      data.Candles ||
+      [];
 
-    const price = Number(
-      data.price ?? 0
-    );
-
-    const ema21 = Number(
-      data.ema21 ?? 0
-    );
-
-    const ema50 = Number(
-      data.ema50 ?? 0
-    );
-
-    const rsi = Number(
-      data.rsi ?? 0
-    );
-
-    const atr = Number(
-      data.atr ?? 0
-    );
-
-    const volume = Number(
-      data.volume ?? 0
-    );
-
-    const avgVolume = Number(
-      data.avgVolume ?? 0
-    );
-
-    const support = Number(
-      data.support ?? 0
-    );
-
-    const resistance = Number(
-      data.resistance ?? 0
-    );
-
-    const bullScore = Number(
-      data.bullScore ?? 0
-    );
-
-    const bearScore = Number(
-      data.bearScore ?? 0
-    );
-
-    const bias =
-      data.bias || "Neutral";
-
-    // =========================
-    // SIGNAL ENGINE
-    // =========================
-
-    let buyScore = bullScore;
-    let sellScore = bearScore;
-
-    // EMA trend confirmation
-    if (
-      price > ema21 &&
-      ema21 > ema50
-    ) {
-      buyScore += 1;
+    if (!Array.isArray(raw) || raw.length < 10) {
+      return jsonResponse(200, {
+        market: "WAIT",
+        source: "RealMarketAPI",
+        symbol: symbol,
+        timeframe: timeframe,
+        signal: "WAIT",
+        strength: 0,
+        message: "Not enough candle data"
+      });
     }
 
-    if (
-      price < ema21 &&
-      ema21 < ema50
-    ) {
+    // =========================
+    // NORMALIZE CANDLES
+    // =========================
+
+    const candles = raw
+      .map(function (c) {
+        return {
+          open: Number(
+            c.openPrice ??
+            c.OpenPrice ??
+            c.open ??
+            c.Open
+          ),
+
+          high: Number(
+            c.highPrice ??
+            c.HighPrice ??
+            c.high ??
+            c.High
+          ),
+
+          low: Number(
+            c.lowPrice ??
+            c.LowPrice ??
+            c.low ??
+            c.Low
+          ),
+
+          close: Number(
+            c.closePrice ??
+            c.ClosePrice ??
+            c.close ??
+            c.Close
+          ),
+
+          time:
+            c.openTime ??
+            c.OpenTime ??
+            c.time ??
+            c.Time
+        };
+      })
+      .filter(function (c) {
+        return (
+          Number.isFinite(c.open) &&
+          Number.isFinite(c.high) &&
+          Number.isFinite(c.low) &&
+          Number.isFinite(c.close)
+        );
+      });
+
+    if (candles.length < 10) {
+      return jsonResponse(200, {
+        market: "WAIT",
+        symbol: symbol,
+        timeframe: timeframe,
+        signal: "WAIT",
+        strength: 0,
+        message: "Not enough valid candles"
+      });
+    }
+
+    // OLD -> NEW
+    candles.sort(function (a, b) {
+      return (
+        new Date(a.time || 0).getTime() -
+        new Date(b.time || 0).getTime()
+      );
+    });
+
+    // =========================
+    // PRICE
+    // =========================
+
+    const last =
+      candles[candles.length - 1];
+
+    const previous =
+      candles[candles.length - 2];
+
+    const price = last.close;
+
+    // =========================
+    // EMA
+    // =========================
+
+    function calculateEMA(period) {
+      if (candles.length < period) {
+        return price;
+      }
+
+      const k = 2 / (period + 1);
+
+      let ema =
+        candles[0].close;
+
+      for (
+        let i = 1;
+        i < candles.length;
+        i++
+      ) {
+        ema =
+          candles[i].close * k +
+          ema * (1 - k);
+      }
+
+      return ema;
+    }
+
+    const ema9 =
+      calculateEMA(9);
+
+    const ema21 =
+      calculateEMA(21);
+
+    // =========================
+    // RSI
+    // =========================
+
+    function calculateRSI(period) {
+      if (candles.length <= period) {
+        return 50;
+      }
+
+      let gains = 0;
+      let losses = 0;
+
+      for (
+        let i = candles.length - period;
+        i < candles.length;
+        i++
+      ) {
+        if (i <= 0) continue;
+
+        const change =
+          candles[i].close -
+          candles[i - 1].close;
+
+        if (change > 0) {
+          gains += change;
+        } else {
+          losses += Math.abs(change);
+        }
+      }
+
+      if (losses === 0) {
+        return 100;
+      }
+
+      const rs =
+        gains / losses;
+
+      return 100 -
+        (100 / (1 + rs));
+    }
+
+    const rsi =
+      calculateRSI(14);
+
+    // =========================
+    // MOMENTUM
+    // =========================
+
+    let buyScore = 0;
+    let sellScore = 0;
+
+    if (price > ema9) {
+      buyScore += 1;
+    } else {
       sellScore += 1;
     }
 
-    // RSI confirmation
-    if (
-      rsi >= 50 &&
-      rsi < 70
-    ) {
+    if (ema9 > ema21) {
       buyScore += 1;
-    }
-
-    if (
-      rsi <= 50 &&
-      rsi > 30
-    ) {
+    } else {
       sellScore += 1;
     }
 
-    // Volume confirmation
-    if (
-      avgVolume > 0 &&
-      volume > avgVolume
-    ) {
-      if (buyScore > sellScore) {
-        buyScore += 1;
-      }
-
-      if (sellScore > buyScore) {
-        sellScore += 1;
-      }
+    if (last.close > last.open) {
+      buyScore += 1;
     }
 
-    // Support / resistance
-    if (
-      support > 0 &&
-      price > support &&
-      price < resistance
-    ) {
-      if (bias === "Bullish") {
-        buyScore += 1;
-      }
+    if (last.close < last.open) {
+      sellScore += 1;
+    }
 
-      if (bias === "Bearish") {
-        sellScore += 1;
-      }
+    if (last.close > previous.close) {
+      buyScore += 1;
+    }
+
+    if (last.close < previous.close) {
+      sellScore += 1;
+    }
+
+    // RSI
+    if (rsi >= 52 && rsi < 70) {
+      buyScore += 1;
+    }
+
+    if (rsi <= 48 && rsi > 30) {
+      sellScore += 1;
     }
 
     // =========================
@@ -228,22 +321,18 @@ exports.handler = async function (event) {
     let signal = "WAIT";
 
     if (
-      buyScore >= 5 &&
+      buyScore >= 4 &&
       buyScore > sellScore
     ) {
       signal = "BUY";
     }
 
     if (
-      sellScore >= 5 &&
+      sellScore >= 4 &&
       sellScore > buyScore
     ) {
       signal = "SELL";
     }
-
-    // =========================
-    // STRENGTH
-    // =========================
 
     const maxScore =
       Math.max(
@@ -251,52 +340,26 @@ exports.handler = async function (event) {
         sellScore
       );
 
-    const totalScore =
-      buyScore + sellScore;
-
-    let strength = 0;
-
-    if (signal !== "WAIT") {
-      strength = Math.round(
-        (
-          maxScore /
-          Math.max(totalScore, 1)
-        ) * 100
+    let strength =
+      Math.round(
+        (maxScore / 6) * 100
       );
+
+    strength =
+      Math.max(
+        0,
+        Math.min(100, strength)
+      );
+
+    if (signal === "WAIT") {
+      strength = 0;
     }
-
-    strength = Math.max(
-      0,
-      Math.min(100, strength)
-    );
-
-    // =========================
-    // ANALYSIS TEXT
-    // =========================
-
-    let analysis =
-      "Waiting for stronger confirmation";
-
-    if (signal === "BUY") {
-      analysis =
-        "Bullish trend confirmed by market insight, EMA and momentum";
-    }
-
-    if (signal === "SELL") {
-      analysis =
-        "Bearish trend confirmed by market insight, EMA and momentum";
-    }
-
-    // =========================
-    // RESPONSE
-    // =========================
 
     return jsonResponse(200, {
-
       market: "LIVE",
 
       source:
-        "RealMarketAPI Insight",
+        "RealMarketAPI Candle API",
 
       symbol:
         symbol,
@@ -313,63 +376,37 @@ exports.handler = async function (event) {
       price:
         price,
 
-      ema21:
-        ema21,
+      ema9:
+        Number(ema9.toFixed(6)),
 
-      ema50:
-        ema50,
+      ema21:
+        Number(ema21.toFixed(6)),
 
       rsi:
-        rsi,
+        Number(rsi.toFixed(2)),
 
-      atr:
-        atr,
+      buyScore:
+        buyScore,
 
-      volume:
-        volume,
+      sellScore:
+        sellScore,
 
-      avgVolume:
-        avgVolume,
-
-      support:
-        support,
-
-      resistance:
-        resistance,
-
-      bias:
-        bias,
-
-      bullScore:
-        bullScore,
-
-      bearScore:
-        bearScore,
-
-      calculatedAt:
-        data.calculatedAt || null,
-
-      targetUp:
-        data.targetUp ?? null,
-
-      targetDown:
-        data.targetDown ?? null,
+      candleTime:
+        last.time || null,
 
       expiry:
         "1 Minute",
 
       analysis:
-        analysis,
+        "EMA + RSI + candle momentum",
 
       message:
         signal === "WAIT"
           ? "Waiting for stronger confirmation"
           : `${signal} signal generated`
-
     });
 
   } catch (error) {
-
     console.error(
       "Signal function error:",
       error
@@ -393,7 +430,6 @@ function jsonResponse(
   statusCode,
   data
 ) {
-
   return {
     statusCode: statusCode,
 
@@ -411,7 +447,7 @@ function jsonResponse(
         "Content-Type",
 
       "Cache-Control":
-        "no-store, no-cache, must-revalidate, proxy-revalidate"
+        "no-store"
     },
 
     body:
