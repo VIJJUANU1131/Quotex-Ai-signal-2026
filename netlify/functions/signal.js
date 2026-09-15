@@ -2,10 +2,6 @@ const API_BASE = "https://api.realmarketapi.com";
 
 exports.handler = async function (event) {
   try {
-    // =========================
-    // API KEY
-    // =========================
-
     const API_KEY = process.env.MARKET_API_KEY;
 
     if (!API_KEY) {
@@ -14,10 +10,6 @@ exports.handler = async function (event) {
         error: "MARKET_API_KEY is not configured in Netlify"
       });
     }
-
-    // =========================
-    // PARAMETERS
-    // =========================
 
     const params = event.queryStringParameters || {};
 
@@ -32,7 +24,6 @@ exports.handler = async function (event) {
       params.timeframe || "M1"
     ).toUpperCase();
 
-    // Supported pairs
     const allowedSymbols = [
       "EURUSD",
       "GBPUSD",
@@ -40,41 +31,32 @@ exports.handler = async function (event) {
       "AUDUSD",
       "USDCAD",
       "EURJPY",
-      "GBPJPY"
+      "GBPJPY",
+      "XAUUSD",
+      "BTCUSD"
     ];
 
     if (!allowedSymbols.includes(symbol)) {
       return jsonResponse(400, {
         market: "ERROR",
-        error: "Symbol not supported",
+        error: "Symbol not supported by website",
         symbol: symbol,
         supportedSymbols: allowedSymbols
       });
     }
 
     // =========================
-    // MARKET API REQUEST
+    // REAL MARKET INSIGHT API
     // =========================
 
     const url = new URL(
-      "/api/v1/candle",
+      "/api/v1/insight/next",
       API_BASE
     );
 
-    url.searchParams.set(
-      "apiKey",
-      API_KEY
-    );
-
-    url.searchParams.set(
-      "symbolCode",
-      symbol
-    );
-
-    url.searchParams.set(
-      "timeFrame",
-      timeframe
-    );
+    url.searchParams.set("apiKey", API_KEY);
+    url.searchParams.set("SymbolCode", symbol);
+    url.searchParams.set("TimeFrame", timeframe);
 
     const response = await fetch(
       url.toString(),
@@ -86,25 +68,23 @@ exports.handler = async function (event) {
       }
     );
 
-    const text =
-      await response.text();
+    const text = await response.text();
 
     // =========================
     // API ERROR
     // =========================
 
     if (!response.ok) {
-      return jsonResponse(
-        response.status,
-        {
-          market: "ERROR",
-          source: "RealMarketAPI",
-          error:
-            `RealMarketAPI HTTP ${response.status}`,
-          details:
-            text.substring(0, 500)
-        }
-      );
+      return jsonResponse(response.status, {
+        market: "ERROR",
+        source: "RealMarketAPI",
+        symbol: symbol,
+        timeframe: timeframe,
+        error:
+          `RealMarketAPI HTTP ${response.status}`,
+        details:
+          text.substring(0, 1000)
+      });
     }
 
     // =========================
@@ -118,231 +98,125 @@ exports.handler = async function (event) {
     } catch (error) {
       return jsonResponse(500, {
         market: "ERROR",
-        error:
-          "Invalid JSON response from market API",
-        details:
-          text.substring(0, 300)
-      });
-    }
-
-    // =========================
-    // FIND CANDLES
-    // =========================
-
-    const raw =
-      data.items ||
-      data.Items ||
-      data.data ||
-      data.Data ||
-      data.candles ||
-      data.Candles ||
-      [];
-
-    if (
-      !Array.isArray(raw) ||
-      raw.length < 3
-    ) {
-      return jsonResponse(200, {
-        market: "WAIT",
         source: "RealMarketAPI",
-        symbol: symbol,
-        timeframe: timeframe,
-        signal: "WAIT",
-        strength: 0,
-        message:
-          "Not enough live candles"
+        error: "Invalid JSON response",
+        details: text.substring(0, 500)
       });
     }
 
     // =========================
-    // NORMALIZE CANDLES
+    // READ API VALUES
     // =========================
 
-    const candles = raw
-      .map(function (c) {
+    const price = Number(
+      data.price ?? 0
+    );
 
-        return {
-          open: Number(
-            c.openPrice ??
-            c.OpenPrice ??
-            c.open ??
-            c.Open
-          ),
+    const ema21 = Number(
+      data.ema21 ?? 0
+    );
 
-          high: Number(
-            c.highPrice ??
-            c.HighPrice ??
-            c.high ??
-            c.High
-          ),
+    const ema50 = Number(
+      data.ema50 ?? 0
+    );
 
-          low: Number(
-            c.lowPrice ??
-            c.LowPrice ??
-            c.low ??
-            c.Low
-          ),
+    const rsi = Number(
+      data.rsi ?? 0
+    );
 
-          close: Number(
-            c.closePrice ??
-            c.ClosePrice ??
-            c.close ??
-            c.Close
-          ),
+    const atr = Number(
+      data.atr ?? 0
+    );
 
-          time:
-            c.openTime ??
-            c.OpenTime ??
-            c.time ??
-            c.Time
-        };
+    const volume = Number(
+      data.volume ?? 0
+    );
 
-      })
-      .filter(function (c) {
+    const avgVolume = Number(
+      data.avgVolume ?? 0
+    );
 
-        return (
-          Number.isFinite(c.open) &&
-          Number.isFinite(c.high) &&
-          Number.isFinite(c.low) &&
-          Number.isFinite(c.close)
-        );
+    const support = Number(
+      data.support ?? 0
+    );
 
-      });
+    const resistance = Number(
+      data.resistance ?? 0
+    );
 
-    if (candles.length < 3) {
-      return jsonResponse(200, {
-        market: "WAIT",
-        source: "RealMarketAPI",
-        symbol: symbol,
-        timeframe: timeframe,
-        signal: "WAIT",
-        strength: 0,
-        message:
-          "Live candle data unavailable"
-      });
-    }
+    const bullScore = Number(
+      data.bullScore ?? 0
+    );
+
+    const bearScore = Number(
+      data.bearScore ?? 0
+    );
+
+    const bias =
+      data.bias || "Neutral";
 
     // =========================
-    // SORT OLD → NEW
+    // SIGNAL ENGINE
     // =========================
 
-    candles.sort(function (a, b) {
+    let buyScore = bullScore;
+    let sellScore = bearScore;
 
-      const ta =
-        new Date(a.time || 0).getTime();
-
-      const tb =
-        new Date(b.time || 0).getTime();
-
-      return ta - tb;
-
-    });
-
-    // =========================
-    // USE LAST 3 CANDLES
-    // =========================
-
-    const c1 =
-      candles[candles.length - 3];
-
-    const c2 =
-      candles[candles.length - 2];
-
-    const c3 =
-      candles[candles.length - 1];
-
-    // =========================
-    // SCORE SYSTEM
-    // =========================
-
-    let buyScore = 0;
-    let sellScore = 0;
-
-    // Candle 1
-    if (c1.close > c1.open) {
-      buyScore += 1;
-    }
-
-    if (c1.close < c1.open) {
-      sellScore += 1;
-    }
-
-    // Candle 2
-    if (c2.close > c2.open) {
-      buyScore += 1;
-    }
-
-    if (c2.close < c2.open) {
-      sellScore += 1;
-    }
-
-    // Candle 3
-    if (c3.close > c3.open) {
-      buyScore += 2;
-    }
-
-    if (c3.close < c3.open) {
-      sellScore += 2;
-    }
-
-    // =========================
-    // MOMENTUM
-    // =========================
-
-    if (c3.close > c2.close) {
-      buyScore += 1;
-    }
-
-    if (c3.close < c2.close) {
-      sellScore += 1;
-    }
-
-    // =========================
-    // HIGHER-HIGH / LOWER-LOW
-    // =========================
-
+    // EMA trend confirmation
     if (
-      c3.high > c2.high &&
-      c3.low >= c2.low
+      price > ema21 &&
+      ema21 > ema50
     ) {
       buyScore += 1;
     }
 
     if (
-      c3.low < c2.low &&
-      c3.high <= c2.high
+      price < ema21 &&
+      ema21 < ema50
     ) {
       sellScore += 1;
     }
 
-    // =========================
-    // BODY STRENGTH
-    // =========================
+    // RSI confirmation
+    if (
+      rsi >= 50 &&
+      rsi < 70
+    ) {
+      buyScore += 1;
+    }
 
-    const body =
-      Math.abs(
-        c3.close - c3.open
-      );
+    if (
+      rsi <= 50 &&
+      rsi > 30
+    ) {
+      sellScore += 1;
+    }
 
-    const range =
-      c3.high - c3.low;
-
-    if (range > 0) {
-
-      const bodyPercent =
-        (body / range) * 100;
-
-      if (
-        bodyPercent >= 60 &&
-        c3.close > c3.open
-      ) {
+    // Volume confirmation
+    if (
+      avgVolume > 0 &&
+      volume > avgVolume
+    ) {
+      if (buyScore > sellScore) {
         buyScore += 1;
       }
 
-      if (
-        bodyPercent >= 60 &&
-        c3.close < c3.open
-      ) {
+      if (sellScore > buyScore) {
+        sellScore += 1;
+      }
+    }
+
+    // Support / resistance
+    if (
+      support > 0 &&
+      price > support &&
+      price < resistance
+    ) {
+      if (bias === "Bullish") {
+        buyScore += 1;
+      }
+
+      if (bias === "Bearish") {
         sellScore += 1;
       }
     }
@@ -353,13 +227,6 @@ exports.handler = async function (event) {
 
     let signal = "WAIT";
 
-    const maxScore =
-      Math.max(
-        buyScore,
-        sellScore
-      );
-
-    // Need minimum confirmation
     if (
       buyScore >= 5 &&
       buyScore > sellScore
@@ -378,31 +245,50 @@ exports.handler = async function (event) {
     // STRENGTH
     // =========================
 
-    const maxPossibleScore = 9;
-
-    let strength =
-      Math.round(
-        (maxScore /
-          maxPossibleScore) *
-        100
-      );
-
-    strength =
+    const maxScore =
       Math.max(
-        0,
-        Math.min(
-          100,
-          strength
-        )
+        buyScore,
+        sellScore
       );
 
-    // Don't show fake high strength
-    if (signal === "WAIT") {
-      strength = 0;
+    const totalScore =
+      buyScore + sellScore;
+
+    let strength = 0;
+
+    if (signal !== "WAIT") {
+      strength = Math.round(
+        (
+          maxScore /
+          Math.max(totalScore, 1)
+        ) * 100
+      );
+    }
+
+    strength = Math.max(
+      0,
+      Math.min(100, strength)
+    );
+
+    // =========================
+    // ANALYSIS TEXT
+    // =========================
+
+    let analysis =
+      "Waiting for stronger confirmation";
+
+    if (signal === "BUY") {
+      analysis =
+        "Bullish trend confirmed by market insight, EMA and momentum";
+    }
+
+    if (signal === "SELL") {
+      analysis =
+        "Bearish trend confirmed by market insight, EMA and momentum";
     }
 
     // =========================
-    // RESULT
+    // RESPONSE
     // =========================
 
     return jsonResponse(200, {
@@ -410,7 +296,7 @@ exports.handler = async function (event) {
       market: "LIVE",
 
       source:
-        "RealMarketAPI",
+        "RealMarketAPI Insight",
 
       symbol:
         symbol,
@@ -425,25 +311,55 @@ exports.handler = async function (event) {
         strength,
 
       price:
-        c3.close,
+        price,
 
-      candleTime:
-        c3.time || null,
+      ema21:
+        ema21,
 
-      candlesUsed:
-        candles.length,
+      ema50:
+        ema50,
 
-      buyScore:
-        buyScore,
+      rsi:
+        rsi,
 
-      sellScore:
-        sellScore,
+      atr:
+        atr,
+
+      volume:
+        volume,
+
+      avgVolume:
+        avgVolume,
+
+      support:
+        support,
+
+      resistance:
+        resistance,
+
+      bias:
+        bias,
+
+      bullScore:
+        bullScore,
+
+      bearScore:
+        bearScore,
+
+      calculatedAt:
+        data.calculatedAt || null,
+
+      targetUp:
+        data.targetUp ?? null,
+
+      targetDown:
+        data.targetDown ?? null,
 
       expiry:
         "1 Minute",
 
       analysis:
-        "Live candle momentum and price-action analysis",
+        analysis,
 
       message:
         signal === "WAIT"
@@ -465,13 +381,12 @@ exports.handler = async function (event) {
         error.message ||
         "Unknown server error"
     });
-
   }
 };
 
 
 // =========================
-// JSON RESPONSE HELPER
+// JSON RESPONSE
 // =========================
 
 function jsonResponse(
@@ -501,7 +416,5 @@ function jsonResponse(
 
     body:
       JSON.stringify(data)
-
   };
-
 }
