@@ -1,67 +1,907 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Quotex OTC AI Signal</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#0d1117;
+color:white;
+}
+
+.container{
+max-width:650px;
+margin:auto;
+padding:18px;
+}
+
+h1{
+text-align:center;
+font-size:25px;
+margin-bottom:20px;
+}
+
+.card{
+background:#161b22;
+border:1px solid #30363d;
+border-radius:15px;
+padding:18px;
+margin-bottom:15px;
+}
+
+label{
+display:block;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+select{
+width:100%;
+padding:14px;
+border-radius:10px;
+border:1px solid #555;
+background:#21262d;
+color:white;
+font-size:17px;
+}
+
+button{
+width:100%;
+padding:15px;
+margin-top:15px;
+border:0;
+border-radius:10px;
+background:#238636;
+color:white;
+font-size:18px;
+font-weight:bold;
+}
+
+button:active{
+transform:scale(.98);
+}
+
+.info{
+display:flex;
+justify-content:space-between;
+padding:11px 0;
+border-bottom:1px solid #30363d;
+}
+
+.signal{
+text-align:center;
+font-size:42px;
+font-weight:bold;
+padding:20px;
+}
+
+.wait{
+color:#f0ad4e;
+}
+
+.buy{
+color:#00e676;
+}
+
+.sell{
+color:#ff5252;
+}
+
+.status{
+text-align:center;
+font-weight:bold;
+margin-top:10px;
+}
+
+.offline{
+color:#ff5252;
+}
+
+.online{
+color:#00e676;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:8px;
+margin-top:15px;
+}
+
+.stat{
+background:#21262d;
+border-radius:10px;
+padding:12px;
+text-align:center;
+}
+
+.stat b{
+display:block;
+font-size:20px;
+margin-top:5px;
+}
+
+.history{
+width:100%;
+overflow-x:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:13px;
+}
+
+th,td{
+border-bottom:1px solid #30363d;
+padding:9px;
+text-align:center;
+}
+
+.clear{
+background:#8b1e1e;
+margin-top:10px;
+}
+
+.note{
+font-size:13px;
+line-height:1.5;
+color:#aaa;
+margin-top:12px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+Quotex OTC AI Signal
+</h1>
+
+
+<!-- PAIR -->
+
+<div class="card">
+
+<label>
+OTC Currency Pair
+</label>
+
 <select id="pair">
 
-  <option value="AUDNZD_otc">AUD/NZD (OTC)</option>
+<option value="AUDNZD_otc">
+AUD/NZD (OTC)
+</option>
 
-  <option value="GBPNZD_otc">GBP/NZD (OTC)</option>
+<option value="GBPNZD_otc">
+GBP/NZD (OTC)
+</option>
 
-  <option value="NZDCAD_otc">NZD/CAD (OTC)</option>
+<option value="NZDCAD_otc">
+NZD/CAD (OTC)
+</option>
 
-  <option value="NZDUSD_otc">NZD/USD (OTC)</option>
+<option value="NZDUSD_otc">
+NZD/USD (OTC)
+</option>
 
-  <option value="USDBRL_otc">USD/BRL (OTC)</option>
+<option value="USDBRL_otc">
+USD/BRL (OTC)
+</option>
 
-  <option value="USDDZD_otc">USD/DZD (OTC)</option>
+<option value="USDDZD_otc">
+USD/DZD (OTC)
+</option>
 
-  <option value="USDEGP_otc">USD/EGP (OTC)</option>
+<option value="USDEGP_otc">
+USD/EGP (OTC)
+</option>
 
-  <option value="USDNGN_otc">USD/NGN (OTC)</option>
+<option value="USDNGN_otc">
+USD/NGN (OTC)
+</option>
 
-  <option value="USDCOP_otc">USD/COP (OTC)</option>
+<option value="USDCOP_otc">
+USD/COP (OTC)
+</option>
 
-  <option value="USDBDT_otc">USD/BDT (OTC)</option>
+<option value="USDBDT_otc">
+USD/BDT (OTC)
+</option>
 
-  <option value="USDPHP_otc">USD/PHP (OTC)</option>
+<option value="USDPHP_otc">
+USD/PHP (OTC)
+</option>
 
 </select>
-async function generateSignal() {
 
-  const pair = document.getElementById("pair").value;
 
-  document.getElementById("status").textContent = "LOADING";
-  document.getElementById("signal").textContent = "WAIT";
+<button onclick="generateSignal()">
+Generate Live Signal
+</button>
 
-  try {
+</div>
 
-    const response = await fetch(
-      "/.netlify/functions/signal?symbol=" +
-      encodeURIComponent(pair)
-    );
 
-    const data = await response.json();
+<!-- MARKET -->
 
-    console.log("OTC DATA:", data);
+<div class="card">
 
-    document.getElementById("status").textContent =
-      data.status || "ERROR";
+<div class="info">
 
-    document.getElementById("price").textContent =
-      data.price ?? "--";
+<span>Market</span>
 
-    document.getElementById("strength").textContent =
-      data.strength
-        ? data.strength + "%"
-        : "--";
+<strong>
+QUOTEX OTC
+</strong>
 
-    document.getElementById("signal").textContent =
-      data.signal || "WAIT";
+</div>
 
-  } catch (error) {
 
-    console.error(error);
+<div class="info">
 
-    document.getElementById("status").textContent = "ERROR";
-    document.getElementById("signal").textContent = "WAIT";
-    document.getElementById("price").textContent = "--";
-    document.getElementById("strength").textContent = "--";
-  }
+<span>Timeframe</span>
+
+<strong>
+M1 / 1 Minute
+</strong>
+
+</div>
+
+
+<div class="info">
+
+<span>Selected Pair</span>
+
+<strong id="selectedPair">
+AUD/NZD (OTC)
+</strong>
+
+</div>
+
+
+<div class="info">
+
+<span>Status</span>
+
+<strong id="status">
+READY
+</strong>
+
+</div>
+
+
+<div id="signal"
+class="signal wait">
+
+WAIT
+
+</div>
+
+
+<div class="info">
+
+<span>Price</span>
+
+<strong id="price">
+--
+</strong>
+
+</div>
+
+
+<div class="info">
+
+<span>Strength</span>
+
+<strong id="strength">
+--
+</strong>
+
+</div>
+
+
+</div>
+
+
+<!-- STATS -->
+
+<div class="card">
+
+<h3>
+Signal Statistics
+</h3>
+
+<div class="stats">
+
+<div class="stat">
+Total
+<b id="total">0</b>
+</div>
+
+<div class="stat">
+BUY
+<b id="buy">0</b>
+</div>
+
+<div class="stat">
+SELL
+<b id="sell">0</b>
+</div>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+WIN
+<b id="win">0</b>
+</div>
+
+<div class="stat">
+LOSS
+<b id="loss">0</b>
+</div>
+
+<div class="stat">
+WIN RATE
+<b id="winrate">0%</b>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- HISTORY -->
+
+<div class="card">
+
+<h3>
+Signal History
+</h3>
+
+<div class="history">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Time</th>
+
+<th>Pair</th>
+
+<th>Signal</th>
+
+<th>Entry</th>
+
+<th>Result</th>
+
+</tr>
+
+</thead>
+
+<tbody id="history">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<button class="clear"
+onclick="clearHistory()">
+
+Clear History
+
+</button>
+
+</div>
+
+
+<div class="card">
+
+<div class="note">
+
+<strong>Important:</strong>
+
+<br><br>
+
+Only real market data is accepted.
+
+Fake candles and fake BUY/SELL signals
+are not generated.
+
+<br><br>
+
+If the backend cannot receive real
+Quotex OTC candles, the signal remains
+WAIT.
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+
+/* =========================
+PAIR NAMES
+========================= */
+
+const pairNames = {
+
+AUDNZD_otc:
+"AUD/NZD (OTC)",
+
+GBPNZD_otc:
+"GBP/NZD (OTC)",
+
+NZDCAD_otc:
+"NZD/CAD (OTC)",
+
+NZDUSD_otc:
+"NZD/USD (OTC)",
+
+USDBRL_otc:
+"USD/BRL (OTC)",
+
+USDDZD_otc:
+"USD/DZD (OTC)",
+
+USDEGP_otc:
+"USD/EGP (OTC)",
+
+USDNGN_otc:
+"USD/NGN (OTC)",
+
+USDCOP_otc:
+"USD/COP (OTC)",
+
+USDBDT_otc:
+"USD/BDT (OTC)",
+
+USDPHP_otc:
+"USD/PHP (OTC)"
+
+};
+
+
+/* =========================
+PAIR CHANGE
+========================= */
+
+document
+.getElementById("pair")
+.addEventListener("change",function(){
+
+const pair=this.value;
+
+document
+.getElementById("selectedPair")
+.textContent=
+pairNames[pair];
+
+});
+
+
+/* =========================
+GENERATE SIGNAL
+========================= */
+
+async function generateSignal(){
+
+const pair=
+document.getElementById("pair").value;
+
+
+document
+.getElementById("status")
+.textContent="LOADING";
+
+
+document
+.getElementById("signal")
+.textContent="WAIT";
+
+
+document
+.getElementById("signal")
+.className="signal wait";
+
+
+document
+.getElementById("price")
+.textContent="--";
+
+
+document
+.getElementById("strength")
+.textContent="--";
+
+
+try{
+
+
+const url=
+"/.netlify/functions/signal?symbol="+
+encodeURIComponent(pair);
+
+
+const response=
+await fetch(url);
+
+
+const data=
+await response.json();
+
+
+console.log(
+"OTC SIGNAL:",
+data
+);
+
+
+document
+.getElementById("status")
+.textContent=
+data.status || "ERROR";
+
+
+document
+.getElementById("price")
+.textContent=
+data.price ?? "--";
+
+
+document
+.getElementById("strength")
+.textContent=
+data.strength !== undefined
+? data.strength+"%"
+: "--";
+
+
+const signal=
+data.signal || "WAIT";
+
+
+document
+.getElementById("signal")
+.textContent=
+signal;
+
+
+if(signal==="BUY"){
+
+document
+.getElementById("signal")
+.className=
+"signal buy";
+
 }
+
+
+else if(signal==="SELL"){
+
+document
+.getElementById("signal")
+.className=
+"signal sell";
+
+}
+
+
+else{
+
+document
+.getElementById("signal")
+.className=
+"signal wait";
+
+}
+
+
+/* Only record real BUY/SELL */
+
+if(
+(signal==="BUY" || signal==="SELL") &&
+data.price != null
+){
+
+saveSignal(
+pair,
+signal,
+Number(data.price)
+);
+
+}
+
+}
+
+catch(error){
+
+console.error(error);
+
+
+document
+.getElementById("status")
+.textContent="ERROR";
+
+
+document
+.getElementById("signal")
+.textContent="WAIT";
+
+
+document
+.getElementById("signal")
+.className="signal wait";
+
+
+document
+.getElementById("price")
+.textContent="--";
+
+
+document
+.getElementById("strength")
+.textContent="--";
+
+}
+
+}
+
+
+/* =========================
+HISTORY
+========================= */
+
+function getHistory(){
+
+return JSON.parse(
+localStorage.getItem(
+"quotex_otc_history"
+) || "[]"
+);
+
+}
+
+
+function saveSignal(
+pair,
+signal,
+entry
+){
+
+const history=
+getHistory();
+
+
+history.unshift({
+
+time:new Date().toLocaleTimeString(
+"en-IN",
+{
+hour12:false,
+timeZone:"Asia/Kolkata"
+}
+),
+
+pair:pairNames[pair],
+
+signal:signal,
+
+entry:entry,
+
+result:"PENDING"
+
+});
+
+
+/* Keep latest 50 */
+
+history.splice(50);
+
+
+localStorage.setItem(
+"quotex_otc_history",
+JSON.stringify(history)
+);
+
+
+renderHistory();
+
+}
+
+
+/* =========================
+RENDER HISTORY
+========================= */
+
+function renderHistory(){
+
+const history=
+getHistory();
+
+
+const table=
+document.getElementById(
+"history"
+);
+
+
+table.innerHTML="";
+
+
+history.forEach(item=>{
+
+const row=
+document.createElement("tr");
+
+
+row.innerHTML=`
+
+<td>${item.time}</td>
+
+<td>${item.pair}</td>
+
+<td>${item.signal}</td>
+
+<td>${item.entry}</td>
+
+<td>${item.result}</td>
+
+`;
+
+
+table.appendChild(row);
+
+});
+
+
+updateStats();
+
+}
+
+
+/* =========================
+STATS
+========================= */
+
+function updateStats(){
+
+const history=
+getHistory();
+
+
+let total=0;
+let buy=0;
+let sell=0;
+let win=0;
+let loss=0;
+
+
+history.forEach(item=>{
+
+if(
+item.signal==="BUY" ||
+item.signal==="SELL"
+){
+
+total++;
+
+}
+
+
+if(item.signal==="BUY"){
+buy++;
+}
+
+
+if(item.signal==="SELL"){
+sell++;
+}
+
+
+if(item.result==="WIN"){
+win++;
+}
+
+
+if(item.result==="LOSS"){
+loss++;
+}
+
+});
+
+
+const completed=
+win+loss;
+
+
+const winrate=
+completed>0
+? ((win/completed)*100).toFixed(1)
+: "0";
+
+
+document.getElementById("total")
+.textContent=total;
+
+
+document.getElementById("buy")
+.textContent=buy;
+
+
+document.getElementById("sell")
+.textContent=sell;
+
+
+document.getElementById("win")
+.textContent=win;
+
+
+document.getElementById("loss")
+.textContent=loss;
+
+
+document.getElementById("winrate")
+.textContent=
+winrate+"%";
+
+}
+
+
+/* =========================
+CLEAR
+========================= */
+
+function clearHistory(){
+
+localStorage.removeItem(
+"quotex_otc_history"
+);
+
+renderHistory();
+
+}
+
+
+/* =========================
+START
+========================= */
+
+renderHistory();
+
+</script>
+
+</body>
+
+</html>
