@@ -1,1150 +1,742 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Live AI Signal</title>
+  <title>AI Signal Bot - Live 1 Minute</title>
 
-<style>
-*{
-    box-sizing:border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#0b1020;
-    color:#fff;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background: #07111f;
+      color: #ffffff;
+      min-height: 100vh;
+    }
 
-.container{
-    max-width:480px;
-    margin:auto;
-    padding:20px;
-}
+    .header {
+      text-align: center;
+      padding: 22px 15px;
+      background: #0b1b2e;
+      border-bottom: 1px solid #163653;
+    }
 
-.header{
-    text-align:center;
-    margin-bottom:20px;
-}
+    .header h1 {
+      font-size: 25px;
+      color: #00d9ff;
+      margin-bottom: 7px;
+    }
 
-.header h1{
-    margin:0;
-    font-size:30px;
-}
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #12324c;
+      color: #00d9ff;
+      font-size: 12px;
+      font-weight: bold;
+    }
 
-.header p{
-    color:#9ca3af;
-    margin-top:8px;
-}
+    .container {
+      width: 94%;
+      max-width: 850px;
+      margin: 20px auto;
+    }
 
-.card{
-    background:#151b2e;
-    border-radius:18px;
-    padding:18px;
-    margin-bottom:15px;
-    box-shadow:0 8px 25px rgba(0,0,0,.25);
-}
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
-label{
-    display:block;
-    color:#aeb6c8;
-    margin-bottom:8px;
-}
+    select,
+    button {
+      flex: 1;
+      padding: 13px;
+      border-radius: 8px;
+      border: 1px solid #244762;
+      background: #0d2135;
+      color: white;
+      font-size: 15px;
+    }
 
-select,
-button{
-    width:100%;
-    padding:14px;
-    border-radius:12px;
-    border:0;
-    font-size:16px;
-}
+    button {
+      background: #00a9d6;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-select{
-    background:#0d1324;
-    color:white;
-    border:1px solid #30384d;
-}
+    button:active {
+      transform: scale(0.98);
+    }
 
-button{
-    margin-top:14px;
-    background:#2563eb;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-}
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
-button:active{
-    transform:scale(.98);
-}
+    .stat {
+      background: #0d2135;
+      border: 1px solid #183b57;
+      border-radius: 10px;
+      padding: 14px 8px;
+      text-align: center;
+    }
 
-.market{
-    text-align:center;
-    color:#60a5fa;
-    font-weight:bold;
-    margin-bottom:12px;
-}
+    .stat-title {
+      color: #8fa8bd;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
 
-.signal{
-    text-align:center;
-    font-size:42px;
-    font-weight:bold;
-    margin:15px 0;
-}
+    .stat-value {
+      font-size: 21px;
+      font-weight: bold;
+    }
 
-.buy{
-    color:#22c55e;
-}
+    .signal-card {
+      background: #0d2135;
+      border: 1px solid #1c4563;
+      border-radius: 15px;
+      padding: 25px 15px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
 
-.sell{
-    color:#ef4444;
-}
+    .pair {
+      font-size: 18px;
+      color: #b7cce0;
+      margin-bottom: 12px;
+    }
 
-.wait{
-    color:#f59e0b;
-}
+    #signal {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 12px 0;
+    }
 
-.info{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-}
+    .wait {
+      color: #ffd166;
+    }
 
-.box{
-    background:#0d1324;
-    padding:13px;
-    border-radius:12px;
-    text-align:center;
-}
+    .buy {
+      color: #00e676;
+    }
 
-.box small{
-    display:block;
-    color:#8f99ad;
-    margin-bottom:5px;
-}
+    .sell {
+      color: #ff5252;
+    }
 
-.box strong{
-    font-size:18px;
-}
+    .strength {
+      font-size: 17px;
+      color: #b7cce0;
+      margin-bottom: 12px;
+    }
 
-.status{
-    text-align:center;
-    margin-top:14px;
-    color:#9ca3af;
-    font-size:14px;
-}
+    .price {
+      font-size: 27px;
+      font-weight: bold;
+      color: #ffffff;
+    }
 
-.timer{
-    text-align:center;
-    font-size:34px;
-    font-weight:bold;
-    margin:15px 0;
-}
+    .countdown {
+      margin-top: 15px;
+      font-size: 17px;
+      color: #00d9ff;
+    }
 
-.history-title{
-    margin-bottom:10px;
-}
+    .status {
+      margin-top: 10px;
+      color: #829bb0;
+      font-size: 12px;
+    }
 
-.history{
-    max-height:300px;
-    overflow-y:auto;
-}
+    .history-card {
+      background: #0d2135;
+      border: 1px solid #1c4563;
+      border-radius: 12px;
+      padding: 15px;
+      overflow-x: auto;
+    }
 
-.row{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr 1fr;
-    gap:5px;
-    padding:10px 5px;
-    border-bottom:1px solid #272f44;
-    font-size:13px;
-    text-align:center;
-}
+    .history-card h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #00d9ff;
+    }
 
-.win{
-    color:#22c55e;
-    font-weight:bold;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
 
-.loss{
-    color:#ef4444;
-    font-weight:bold;
-}
+    th,
+    td {
+      padding: 10px 7px;
+      border-bottom: 1px solid #19374f;
+      text-align: center;
+      font-size: 12px;
+    }
 
-.skip{
-    color:#f59e0b;
-}
+    th {
+      color: #8fa8bd;
+    }
 
-.empty{
-    text-align:center;
-    color:#7d879b;
-    padding:20px;
-}
+    .win {
+      color: #00e676;
+      font-weight: bold;
+    }
 
-.footer{
-    text-align:center;
-    color:#667085;
-    font-size:12px;
-    margin-top:20px;
-}
-</style>
+    .loss {
+      color: #ff5252;
+      font-weight: bold;
+    }
+
+    .pending {
+      color: #ffd166;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      #signal {
+        font-size: 40px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div class="header">
+    <h1>AI Signal Bot</h1>
+    <div class="badge">LIVE MARKET • 1 MINUTE</div>
+  </div>
 
-    <div class="header">
-        <h1>Live AI Signal</h1>
-        <p>Real Candle Analysis • M1</p>
-    </div>
+  <div class="container">
 
-    <div class="card">
+    <div class="controls">
 
-        <label>Select Market</label>
+      <select id="pair">
+        <option value="EURUSD">EUR/USD</option>
+        <option value="GBPUSD">GBP/USD</option>
+        <option value="USDJPY">USD/JPY</option>
+        <option value="AUDUSD">AUD/USD</option>
+        <option value="USDCAD">USD/CAD</option>
+        <option value="USDCHF">USD/CHF</option>
+        <option value="NZDUSD">NZD/USD</option>
+        <option value="EURGBP">EUR/GBP</option>
+        <option value="EURJPY">EUR/JPY</option>
+        <option value="GBPJPY">GBP/JPY</option>
+      </select>
 
-        <select id="symbol">
-            <option value="1HZ100V">Volatility 100 Index</option>
-        </select>
-
-        <button onclick="generateSignal()">
-            GENERATE LIVE SIGNAL
-        </button>
-
-    </div>
-
-    <div class="card">
-
-        <div class="market">
-            DERIV SYNTHETIC LIVE
-        </div>
-
-        <div id="signal" class="signal wait">
-            WAIT
-        </div>
-
-        <div class="info">
-
-            <div class="box">
-                <small>PRICE</small>
-                <strong id="price">--</strong>
-            </div>
-
-            <div class="box">
-                <small>STRENGTH</small>
-                <strong id="strength">--</strong>
-            </div>
-
-            <div class="box">
-                <small>BUY SCORE</small>
-                <strong id="buyScore">--</strong>
-            </div>
-
-            <div class="box">
-                <small>SELL SCORE</small>
-                <strong id="sellScore">--</strong>
-            </div>
-
-        </div>
-
-        <div class="timer">
-            <span id="timer">60</span>s
-        </div>
-
-        <div id="status" class="status">
-            Ready
-        </div>
+      <button onclick="getLiveSignal()">
+        GET SIGNAL
+      </button>
 
     </div>
 
-    <div class="card">
+    <div class="stats">
 
-        <h3 class="history-title">
-            Signal History
-        </h3>
+      <div class="stat">
+        <div class="stat-title">TOTAL</div>
+        <div class="stat-value" id="total">0</div>
+      </div>
 
-        <div class="row">
-            <strong>Time</strong>
-            <strong>Signal</strong>
-            <strong>Price</strong>
-            <strong>Result</strong>
-        </div>
+      <div class="stat">
+        <div class="stat-title">BUY</div>
+        <div class="stat-value buy" id="buyCount">0</div>
+      </div>
 
-        <div id="history" class="history">
-            <div class="empty">
-                No signals yet
-            </div>
-        </div>
+      <div class="stat">
+        <div class="stat-title">SELL</div>
+        <div class="stat-value sell" id="sellCount">0</div>
+      </div>
 
-    </div>
-
-    <div class="card">
-
-        <div class="info">
-
-            <div class="box">
-                <small>WINS</small>
-                <strong id="wins">0</strong>
-            </div>
-
-            <div class="box">
-                <small>LOSSES</small>
-                <strong id="losses">0</strong>
-            </div>
-
-            <div class="box">
-                <small>SKIPPED</small>
-                <strong id="skips">0</strong>
-            </div>
-
-            <div class="box">
-                <small>WIN RATE</small>
-                <strong id="winRate">0%</strong>
-            </div>
-
-        </div>
+      <div class="stat">
+        <div class="stat-title">WIN RATE</div>
+        <div class="stat-value" id="winRate">0%</div>
+      </div>
 
     </div>
 
-    <div class="footer">
-        Data Source: Deriv Synthetic Market
+    <div class="stats">
+
+      <div class="stat">
+        <div class="stat-title">WINS</div>
+        <div class="stat-value win" id="wins">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">LOSSES</div>
+        <div class="stat-value loss" id="losses">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">TIMEFRAME</div>
+        <div class="stat-value">M1</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">EXPIRY</div>
+        <div class="stat-value">60s</div>
+      </div>
+
     </div>
 
-</div>
+    <div class="signal-card">
 
+      <div class="pair">
+        <span id="pairName">EUR/USD</span>
+      </div>
+
+      <div id="signal" class="wait">
+        WAIT
+      </div>
+
+      <div class="strength">
+        Strength:
+        <span id="strength">--</span>
+      </div>
+
+      <div class="price">
+        <span id="price">--</span>
+      </div>
+
+      <div class="countdown">
+        Next signal:
+        <span id="countdown">60</span>s
+      </div>
+
+      <div class="status" id="status">
+        Connecting to live market...
+      </div>
+
+    </div>
+
+    <div class="history-card">
+
+      <h2>Signal History</h2>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Pair</th>
+            <th>Signal</th>
+            <th>Strength</th>
+            <th>Price</th>
+            <th>Expiry</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+
+        <tbody id="history">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
 
 <script>
 
-/* =========================
-   BACKEND
-========================= */
+const API_URL = "/.netlify/functions/signal";
 
-const BACKEND_URL =
-"https://quotex-otc-backend.onrender.com";
+const EXPIRY_SECONDS = 60;
 
-
-/* =========================
-   VARIABLES
-========================= */
-
-let currentSignal = null;
-let currentEntryPrice = null;
-let signalTime = null;
-
-let timer = 60;
-
-let historyData = [];
+let countdown = 60;
 
 let wins = 0;
 let losses = 0;
-let skips = 0;
+let total = 0;
+let buyCount = 0;
+let sellCount = 0;
+
+let historyData = [];
+
+let currentSignal = null;
 
 
-/* =========================
-   FETCH CANDLES
-========================= */
+// ------------------------------
+// LIVE SIGNAL
+// ------------------------------
 
-async function getCandles(){
+async function getLiveSignal() {
 
-    const symbol =
-        document.getElementById("symbol").value;
+  const pair = document.getElementById("pair").value;
+
+  document.getElementById("pairName").textContent =
+    formatPair(pair);
+
+  document.getElementById("status").textContent =
+    "Fetching live market data...";
+
+  try {
 
     const url =
-        BACKEND_URL +
-        "/api/v1/candles?symbol=" +
-        encodeURIComponent(symbol);
+      API_URL +
+      "?symbol=" +
+      encodeURIComponent(pair) +
+      "&timeframe=M1";
 
-    const response =
-        await fetch(url, {
-            cache:"no-store"
-        });
+    const response = await fetch(
+      url,
+      {
+        cache: "no-store"
+      }
+    );
 
-    if(!response.ok){
+    const data = await response.json();
 
-        throw new Error(
-            "Backend HTTP " + response.status
-        );
+    console.log("Signal API:", data);
+
+    if (data.status === "ERROR") {
+
+      showWait();
+
+      document.getElementById("status").textContent =
+        data.message || "API error";
+
+      return;
     }
 
-    const data =
-        await response.json();
+    if (data.status === "WAIT") {
 
-    if(data.status !== "success"){
+      showWait();
 
-        throw new Error(
-            data.message ||
-            data.error ||
-            "Backend error"
-        );
+      document.getElementById("status").textContent =
+        data.message || "Waiting for candles";
+
+      return;
     }
 
-    if(!Array.isArray(data.candles)){
+    if (data.signal) {
 
-        throw new Error(
-            "Candles data missing"
-        );
+      displaySignal(data);
+
+      saveSignal(data);
+
+      document.getElementById("status").textContent =
+        "Live market data connected";
+
     }
 
-    return data.candles;
+  } catch (error) {
+
+    console.error(error);
+
+    showWait();
+
+    document.getElementById("status").textContent =
+      "Connection error: " + error.message;
+  }
 }
 
 
-/* =========================
-   CANDLE ANALYSIS
-========================= */
+// ------------------------------
+// DISPLAY SIGNAL
+// ------------------------------
 
-function analyzeCandles(candles){
+function displaySignal(data) {
 
-    if(!candles || candles.length < 10){
+  const signalElement =
+    document.getElementById("signal");
 
-        return {
-            signal:"WAIT",
-            strength:0,
-            buyScore:0,
-            sellScore:0,
-            reason:"Not enough candles"
-        };
-    }
+  signalElement.textContent =
+    data.signal || "WAIT";
 
+  signalElement.className =
+    "";
 
-    /* Make a copy and sort by time */
+  if (data.signal === "BUY") {
 
-    const data =
-        [...candles].sort(
-            (a,b) =>
-            Number(a.epoch) -
-            Number(b.epoch)
-        );
+    signalElement.classList.add("buy");
 
+  } else if (data.signal === "SELL") {
 
-    const c1 =
-        data[data.length - 1];
+    signalElement.classList.add("sell");
 
-    const c2 =
-        data[data.length - 2];
+  } else {
 
-    const c3 =
-        data[data.length - 3];
+    signalElement.classList.add("wait");
+  }
 
-    const c4 =
-        data[data.length - 4];
+  document.getElementById("strength").textContent =
+    data.strength != null
+      ? data.strength + "%"
+      : "--";
 
-    const c5 =
-        data[data.length - 5];
-
-
-    const o1 = Number(c1.open);
-    const h1 = Number(c1.high);
-    const l1 = Number(c1.low);
-    const x1 = Number(c1.close);
-
-    const o2 = Number(c2.open);
-    const x2 = Number(c2.close);
-
-    const o3 = Number(c3.open);
-    const x3 = Number(c3.close);
-
-    const o4 = Number(c4.open);
-    const x4 = Number(c4.close);
-
-    const o5 = Number(c5.open);
-    const x5 = Number(c5.close);
-
-
-    if(
-        !Number.isFinite(o1) ||
-        !Number.isFinite(h1) ||
-        !Number.isFinite(l1) ||
-        !Number.isFinite(x1)
-    ){
-
-        return {
-            signal:"WAIT",
-            strength:0,
-            buyScore:0,
-            sellScore:0,
-            reason:"Invalid candle"
-        };
-    }
-
-
-    let buyScore = 0;
-    let sellScore = 0;
-
-
-    /* =====================
-       CANDLE DIRECTION
-    ===================== */
-
-    if(x1 > o1)
-        buyScore += 20;
-
-    if(x1 < o1)
-        sellScore += 20;
-
-
-    if(x2 > o2)
-        buyScore += 12;
-
-    if(x2 < o2)
-        sellScore += 12;
-
-
-    if(x3 > o3)
-        buyScore += 10;
-
-    if(x3 < o3)
-        sellScore += 10;
-
-
-    if(x4 > o4)
-        buyScore += 6;
-
-    if(x4 < o4)
-        sellScore += 6;
-
-
-    if(x5 > o5)
-        buyScore += 4;
-
-    if(x5 < o5)
-        sellScore += 4;
-
-
-    /* =====================
-       MOMENTUM
-    ===================== */
-
-    if(x1 > x2)
-        buyScore += 15;
-
-    if(x1 < x2)
-        sellScore += 15;
-
-
-    if(x2 > x3)
-        buyScore += 8;
-
-    if(x2 < x3)
-        sellScore += 8;
-
-
-    /* =====================
-       BODY STRENGTH
-    ===================== */
-
-    const body =
-        Math.abs(x1 - o1);
-
-    const range =
-        h1 - l1;
-
-
-    if(range > 0){
-
-        const bodyRatio =
-            body / range;
-
-        if(bodyRatio >= 0.60){
-
-            if(x1 > o1)
-                buyScore += 10;
-
-            if(x1 < o1)
-                sellScore += 10;
-        }
-
-        else if(bodyRatio >= 0.40){
-
-            if(x1 > o1)
-                buyScore += 5;
-
-            if(x1 < o1)
-                sellScore += 5;
-        }
-    }
-
-
-    /* =====================
-       TREND CHECK
-    ===================== */
-
-    const recentMove =
-        x1 - x5;
-
-
-    if(recentMove > 0)
-        buyScore += 5;
-
-    if(recentMove < 0)
-        sellScore += 5;
-
-
-    /* =====================
-       FINAL SIGNAL
-    ===================== */
-
-    let signal = "WAIT";
-
-    let strength = 0;
-
-
-    const difference =
-        Math.abs(
-            buyScore - sellScore
-        );
-
-
-    if(
-        buyScore > sellScore &&
-        buyScore >= 55 &&
-        difference >= 10
-    ){
-
-        signal = "BUY";
-
-        strength =
-            Math.min(
-                buyScore,
-                95
-            );
-    }
-
-    else if(
-        sellScore > buyScore &&
-        sellScore >= 55 &&
-        difference >= 10
-    ){
-
-        signal = "SELL";
-
-        strength =
-            Math.min(
-                sellScore,
-                95
-            );
-    }
-
-    else{
-
-        signal = "WAIT";
-
-        strength =
-            Math.max(
-                buyScore,
-                sellScore
-            );
-    }
-
-
-    return {
-
-        signal:signal,
-
-        strength:Math.round(
-            strength
-        ),
-
-        buyScore:Math.round(
-            buyScore
-        ),
-
-        sellScore:Math.round(
-            sellScore
-        ),
-
-        price:x1,
-
-        candleTime:
-            c1.epoch || null
-    };
+  document.getElementById("price").textContent =
+    data.price != null
+      ? data.price
+      : "--";
 }
 
 
-/* =========================
-   GENERATE SIGNAL
-========================= */
+// ------------------------------
+// WAIT
+// ------------------------------
 
-async function generateSignal(){
+function showWait() {
 
-    const status =
-        document.getElementById("status");
+  const signalElement =
+    document.getElementById("signal");
 
-    status.innerText =
-        "Loading live candles...";
+  signalElement.textContent =
+    "WAIT";
 
+  signalElement.className =
+    "wait";
 
-    try{
+  document.getElementById("strength").textContent =
+    "--";
 
-        const candles =
-            await getCandles();
-
-
-        const result =
-            analyzeCandles(candles);
-
-
-        updateSignal(result);
-
-
-        status.innerText =
-            "Live candle analysis completed";
-
-
-    }catch(error){
-
-        console.error(error);
-
-        document.getElementById(
-            "signal"
-        ).innerText = "ERROR";
-
-        document.getElementById(
-            "signal"
-        ).className =
-            "signal wait";
-
-        status.innerText =
-            error.message;
-
-    }
+  document.getElementById("price").textContent =
+    "--";
 }
 
 
-/* =========================
-   UPDATE SIGNAL UI
-========================= */
+// ------------------------------
+// SAVE SIGNAL
+// ------------------------------
 
-function updateSignal(result){
+function saveSignal(data) {
 
-    const signalElement =
-        document.getElementById("signal");
+  if (
+    !data.signal ||
+    data.signal === "WAIT"
+  ) {
+    return;
+  }
 
+  const item = {
 
-    signalElement.innerText =
-        result.signal;
+    time: new Date().toLocaleTimeString(
+      "en-IN",
+      {
+        timeZone: "Asia/Kolkata"
+      }
+    ),
 
+    pair: data.symbol || "EURUSD",
 
-    signalElement.className =
-        "signal " +
-        (
-            result.signal === "BUY"
-            ? "buy"
-            :
-            result.signal === "SELL"
-            ? "sell"
-            : "wait"
-        );
+    signal: data.signal,
 
+    strength: data.strength || 0,
 
-    document.getElementById(
-        "price"
-    ).innerText =
-        result.price !== undefined
-        ? Number(result.price).toFixed(2)
-        : "--";
+    price: data.price || 0,
 
+    expiry: "60s",
 
-    document.getElementById(
-        "strength"
-    ).innerText =
-        result.strength !== undefined
-        ? result.strength + "%"
-        : "--";
+    result: "PENDING"
+  };
 
+  historyData.unshift(item);
 
-    document.getElementById(
-        "buyScore"
-    ).innerText =
-        result.buyScore !== undefined
-        ? result.buyScore
-        : "--";
+  if (historyData.length > 20) {
+    historyData.pop();
+  }
 
+  total++;
 
-    document.getElementById(
-        "sellScore"
-    ).innerText =
-        result.sellScore !== undefined
-        ? result.sellScore
-        : "--";
+  if (data.signal === "BUY") {
+    buyCount++;
+  }
 
+  if (data.signal === "SELL") {
+    sellCount++;
+  }
 
-    /* Save only BUY/SELL */
+  currentSignal = item;
 
-    if(
-        result.signal === "BUY" ||
-        result.signal === "SELL"
-    ){
+  updateStats();
 
-        currentSignal =
-            result.signal;
-
-        currentEntryPrice =
-            Number(result.price);
-
-        signalTime =
-            Date.now();
-
-
-        addHistory({
-
-            time:
-                new Date()
-                .toLocaleTimeString(),
-
-            signal:
-                result.signal,
-
-            entry:
-                currentEntryPrice,
-
-            result:
-                "PENDING"
-        });
-    }
+  renderHistory();
 }
 
 
-/* =========================
-   HISTORY
-========================= */
+// ------------------------------
+// STATS
+// ------------------------------
 
-function addHistory(item){
+function updateStats() {
 
-    historyData.unshift(item);
+  document.getElementById("total").textContent =
+    total;
 
+  document.getElementById("buyCount").textContent =
+    buyCount;
 
-    if(historyData.length > 20){
+  document.getElementById("sellCount").textContent =
+    sellCount;
 
-        historyData =
-            historyData.slice(
-                0,
-                20
-            );
-    }
+  document.getElementById("wins").textContent =
+    wins;
 
+  document.getElementById("losses").textContent =
+    losses;
 
-    renderHistory();
+  const completed =
+    wins + losses;
+
+  const rate =
+    completed > 0
+      ? ((wins / completed) * 100).toFixed(1)
+      : 0;
+
+  document.getElementById("winRate").textContent =
+    rate + "%";
 }
 
 
-/* =========================
-   CHECK RESULT
-========================= */
+// ------------------------------
+// HISTORY
+// ------------------------------
 
-async function checkSignalResult(){
+function renderHistory() {
 
-    if(
-        !currentSignal ||
-        currentEntryPrice === null
-    ){
+  const table =
+    document.getElementById("history");
 
-        return;
+  table.innerHTML = "";
+
+  historyData.forEach(item => {
+
+    const row =
+      document.createElement("tr");
+
+    let resultClass =
+      "pending";
+
+    if (item.result === "WIN") {
+      resultClass = "win";
     }
 
-
-    try{
-
-        const candles =
-            await getCandles();
-
-
-        if(
-            !candles ||
-            candles.length < 2
-        ){
-
-            return;
-        }
-
-
-        const data =
-            [...candles].sort(
-                (a,b) =>
-                Number(a.epoch) -
-                Number(b.epoch)
-            );
-
-
-        const latest =
-            data[data.length - 1];
-
-
-        const exitPrice =
-            Number(latest.close);
-
-
-        if(
-            !Number.isFinite(exitPrice)
-        ){
-
-            return;
-        }
-
-
-        const result =
-            checkResult(
-                currentSignal,
-                currentEntryPrice,
-                exitPrice
-            );
-
-
-        if(result === "WIN"){
-
-            wins++;
-        }
-
-        else if(result === "LOSS"){
-
-            losses++;
-        }
-
-        else{
-
-            skips++;
-        }
-
-
-        if(historyData.length > 0){
-
-            historyData[0].result =
-                result;
-
-            historyData[0].exit =
-                exitPrice;
-        }
-
-
-        updateStats();
-
-        renderHistory();
-
-
-        currentSignal = null;
-
-        currentEntryPrice = null;
-
-
-    }catch(error){
-
-        console.log(
-            "Result check:",
-            error.message
-        );
+    if (item.result === "LOSS") {
+      resultClass = "loss";
     }
+
+    row.innerHTML = `
+
+      <td>${item.time}</td>
+
+      <td>${formatPair(item.pair)}</td>
+
+      <td>${item.signal}</td>
+
+      <td>${item.strength}%</td>
+
+      <td>${item.price}</td>
+
+      <td>${item.expiry}</td>
+
+      <td class="${resultClass}">
+        ${item.result}
+      </td>
+
+    `;
+
+    table.appendChild(row);
+
+  });
 }
 
 
-/* =========================
-   RESULT LOGIC
-========================= */
+// ------------------------------
+// PAIR FORMAT
+// ------------------------------
 
-function checkResult(
-    signal,
-    entryPrice,
-    exitPrice
-){
+function formatPair(pair) {
 
-    if(signal === "BUY"){
+  if (!pair) {
+    return "--";
+  }
 
-        return exitPrice > entryPrice
-            ? "WIN"
-            : "LOSS";
-    }
+  const clean =
+    pair.replace("/", "");
 
+  if (clean.length === 6) {
 
-    if(signal === "SELL"){
+    return (
+      clean.substring(0, 3) +
+      "/" +
+      clean.substring(3)
+    );
+  }
 
-        return exitPrice < entryPrice
-            ? "WIN"
-            : "LOSS";
-    }
-
-
-    return "SKIP";
+  return pair;
 }
 
 
-/* =========================
-   HISTORY DISPLAY
-========================= */
+// ------------------------------
+// COUNTDOWN
+// ------------------------------
 
-function renderHistory(){
+setInterval(() => {
 
-    const history =
-        document.getElementById(
-            "history"
-        );
+  countdown--;
 
+  document.getElementById("countdown").textContent =
+    countdown;
 
-    if(historyData.length === 0){
+  if (countdown <= 0) {
 
-        history.innerHTML =
-            '<div class="empty">No signals yet</div>';
+    countdown = EXPIRY_SECONDS;
 
-        return;
-    }
+    getLiveSignal();
+  }
 
-
-    history.innerHTML =
-        historyData
-        .map(item => {
-
-            let resultClass =
-                "skip";
+}, 1000);
 
 
-            if(item.result === "WIN")
-                resultClass = "win";
+// ------------------------------
+// PAIR CHANGE
+// ------------------------------
 
-
-            if(item.result === "LOSS")
-                resultClass = "loss";
-
-
-            return `
-
-                <div class="row">
-
-                    <span>
-                        ${item.time}
-                    </span>
-
-                    <span class="${
-                        item.signal === "BUY"
-                        ? "win"
-                        : "loss"
-                    }">
-                        ${item.signal}
-                    </span>
-
-                    <span>
-                        ${Number(
-                            item.entry
-                        ).toFixed(2)}
-                    </span>
-
-                    <span class="${
-                        resultClass
-                    }">
-                        ${item.result}
-                    </span>
-
-                </div>
-
-            `;
-
-        })
-        .join("");
-}
-
-
-/* =========================
-   STATS
-========================= */
-
-function updateStats(){
-
-    document.getElementById(
-        "wins"
-    ).innerText = wins;
-
-
-    document.getElementById(
-        "losses"
-    ).innerText = losses;
-
-
-    document.getElementById(
-        "skips"
-    ).innerText = skips;
-
-
-    const total =
-        wins + losses;
-
-
-    const rate =
-        total > 0
-        ? (
-            wins / total
-        ) * 100
-        : 0;
-
-
-    document.getElementById(
-        "winRate"
-    ).innerText =
-        rate.toFixed(1) + "%";
-}
-
-
-/* =========================
-   60 SECOND TIMER
-========================= */
-
-function startTimer(){
-
-    setInterval(async () => {
-
-        timer--;
-
-        document.getElementById(
-            "timer"
-        ).innerText = timer;
-
-
-        if(timer <= 0){
-
-            /*
-             * First check the previous
-             * signal result.
-             */
-
-            await checkSignalResult();
-
-
-            /*
-             * Then generate a new signal.
-             */
-
-            await generateSignal();
-
-
-            timer = 60;
-
-            document.getElementById(
-                "timer"
-            ).innerText = timer;
-        }
-
-    },1000);
-}
-
-
-/* =========================
-   START
-========================= */
-
-window.addEventListener(
-    "load",
+document.getElementById("pair")
+  .addEventListener(
+    "change",
     () => {
 
-        updateStats();
+      const pair =
+        document.getElementById("pair").value;
 
-        startTimer();
+      document.getElementById("pairName")
+        .textContent =
+        formatPair(pair);
 
-        /*
-         * Generate first signal
-         * automatically.
-         */
+      showWait();
 
-        generateSignal();
-
+      countdown = 60;
     }
-);
+  );
+
+
+// ------------------------------
+// START
+// ------------------------------
+
+getLiveSignal();
 
 </script>
 
