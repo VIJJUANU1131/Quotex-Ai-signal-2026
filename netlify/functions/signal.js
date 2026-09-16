@@ -1,114 +1,170 @@
-exports.handler = async function (event) {
+const API_BASE = "https://api.realmarketapi.com";
 
-  try {
+exports.handler = async (event) => {
+  const params = event.queryStringParameters || {};
 
-    const params = event.queryStringParameters || {};
+  const symbol = (params.symbol || "EURUSD")
+    .replace("/", "")
+    .toUpperCase();
 
-    const symbol = params.symbol || "AUDNZD_otc";
+  const timeframe = (params.timeframe || "M1").toUpperCase();
 
-    const allowedPairs = [
-      "AUDNZD_otc",
-      "GBPNZD_otc",
-      "NZDCAD_otc",
-      "NZDUSD_otc",
-      "USDBRL_otc",
-      "USDDZD_otc",
-      "USDEGP_otc",
-      "USDNGN_otc",
-      "USDCOP_otc",
-      "USDBDT_otc",
-      "USDPHP_otc"
-    ];
+  const apiKey = process.env.MARKET_API_KEY;
 
-    if (!allowedPairs.includes(symbol)) {
-
-      return {
-        statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify({
-          status: "ERROR",
-          market: "QUOTEX_OTC",
-          symbol: symbol,
-          timeframe: "M1",
-          signal: "WAIT",
-          strength: 0,
-          price: null,
-          message: "Unsupported OTC pair"
-        })
-      };
-
-    }
-
-    const backendURL =
-      "https://quotex-otc-backend.onrender.com/api/v1/candles?symbol=" +
-      encodeURIComponent(symbol);
-
-    const response = await fetch(backendURL);
-
-    const data = await response.json();
-
-    console.log("Backend response:", data);
-
-    if (
-      !response.ok ||
-      data.error === "QUOTEX_ACCESS_BLOCKED" ||
-      data.connection === "NOT_CONNECTED"
-    ) {
-
-      return {
-        statusCode: 503,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify({
-          status: "OFFLINE",
-          market: "QUOTEX_OTC",
-          symbol: symbol,
-          timeframe: "M1",
-          signal: "WAIT",
-          strength: 0,
-          price: null,
-          message:
-            "Real Quotex OTC data is unavailable."
-        })
-      };
-
-    }
-
-    return {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: JSON.stringify(data)
-    };
-
-  } catch (error) {
-
-    console.error(error);
-
-    return {
-      statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: JSON.stringify({
-        status: "ERROR",
-        market: "QUOTEX_OTC",
-        timeframe: "M1",
-        signal: "WAIT",
-        strength: 0,
-        price: null,
-        message: error.message
-      })
-    };
-
+  if (!apiKey) {
+    return response(500, {
+      status: "ERROR",
+      message: "MARKET_API_KEY is not configured"
+    });
   }
 
+  try {
+    const url =
+      `${API_BASE}/api/v1/candle` +
+      `?apiKey=${encodeURIComponent(apiKey)}` +
+      `&symbolCode=${encodeURIComponent(symbol)}` +
+      `&timeFrame=${encodeURIComponent(timeframe)}`;
+
+    const res = await fetch(url);
+
+    const text = await res.text();
+
+    if (!res.ok) {
+      return response(res.status, {
+        status: "ERROR",
+        market: "REAL",
+        source: "RealMarketAPI",
+        symbol,
+        timeframe,
+        message: `RealMarketAPI HTTP ${res.status}`,
+        details: text
+      });
+    }
+
+    const data = JSON.parse(text);
+
+    const raw =
+      data.items ||
+      data.Items ||
+      data.data ||
+      data.Data ||
+      [];
+
+    if (!Array.isArray(raw) || raw.length < 3) {
+      return response(200, {
+        status: "WAIT",
+        market: "REAL",
+        source: "RealMarketAPI",
+        symbol,
+        timeframe,
+        message: "Not enough candles for analysis"
+      });
+    }
+
+    const candles = raw
+      .map(c => ({
+        time: c.time || c.Time || c.timestamp || c.Timestamp,
+        open: Number(c.openPrice ?? c.OpenPrice ?? c.open ?? c.Open),
+        high: Number(c.highPrice ?? c.HighPrice ?? c.high ?? c.High),
+        low: Number(c.lowPrice ?? c.LowPrice ?? c.low ?? c.Low),
+        close: Number(c.closePrice ?? c.ClosePrice ?? c.close ?? c.Close)
+      }))
+      .filter(c =>
+        Number.isFinite(c.open) &&
+        Number.isFinite(c.high) &&
+        Number.isFinite(c.low) &&
+        Number.isFinite(c.close)
+      )
+      .sort((a, b) =>
+        new Date(a.time) - new Date(b.time)
+      );
+
+    if (candles.length < 3) {
+      return response(200, {
+        status: "WAIT",
+        market: "REAL",
+        source: "RealMarketAPI",
+        symbol,
+        timeframe,
+        message: "Not enough valid candles"
+      });
+    }
+
+    const current = candles[candles.length - 1];
+    const previous = candles[candles.length - 2];
+
+    let buyScore = 0;
+    let sellScore = 0;
+
+    // Current candle direction
+    if (current.close > current.open) {
+      buyScore += 2;
+    } else if (current.close < current.open) {
+      sellScore += 2;
+    }
+
+    // Previous candle confirmation
+    if (previous.close > previous.open) {
+      buyScore += 1;
+    } else if (previous.close < previous.open) {
+      sellScore += 1;
+    }
+
+    // Momentum
+    const priceChange = current.close - previous.close;
+
+    if (priceChange > 0) {
+      buyScore += 2;
+    } else if (priceChange < 0) {
+      sellScore += 2;
+    }
+
+    let signal = "WAIT";
+    let strength = 50;
+
+    if (buyScore >= 4 && buyScore > sellScore) {
+      signal = "BUY";
+      strength = Math.min(95, 70 + buyScore * 5);
+    }
+
+    if (sellScore >= 4 && sellScore > buyScore) {
+      signal = "SELL";
+      strength = Math.min(95, 70 + sellScore * 5);
+    }
+
+    return response(200, {
+      status: "success",
+      market: "REAL",
+      source: "RealMarketAPI",
+      symbol,
+      timeframe,
+      signal,
+      strength,
+      price: current.close,
+      candleTime: current.time,
+      analysis: "Live candle momentum analysis"
+    });
+
+  } catch (error) {
+    return response(500, {
+      status: "ERROR",
+      market: "REAL",
+      source: "RealMarketAPI",
+      symbol,
+      timeframe,
+      message: error.message
+    });
+  }
 };
+
+function response(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-store"
+    },
+    body: JSON.stringify(body)
+  };
+}
