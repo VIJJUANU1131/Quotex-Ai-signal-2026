@@ -1,13 +1,15 @@
 const API_BASE = "https://api.realmarketapi.com";
 
 exports.handler = async (event) => {
+
   const params = event.queryStringParameters || {};
 
   const symbol = (params.symbol || "EURUSD")
     .replace("/", "")
     .toUpperCase();
 
-  const timeframe = (params.timeframe || "M1").toUpperCase();
+  const timeframe = (params.timeframe || "M1")
+    .toUpperCase();
 
   const apiKey = process.env.MARKET_API_KEY;
 
@@ -19,6 +21,7 @@ exports.handler = async (event) => {
   }
 
   try {
+
     const url =
       `${API_BASE}/api/v1/candle` +
       `?apiKey=${encodeURIComponent(apiKey)}` +
@@ -35,6 +38,7 @@ exports.handler = async (event) => {
     const text = await apiResponse.text();
 
     if (!apiResponse.ok) {
+
       return response(apiResponse.status, {
         status: "ERROR",
         market: "REAL",
@@ -51,6 +55,7 @@ exports.handler = async (event) => {
     try {
       data = JSON.parse(text);
     } catch {
+
       return response(500, {
         status: "ERROR",
         message: "Invalid JSON received from RealMarketAPI"
@@ -64,19 +69,25 @@ exports.handler = async (event) => {
       data.Data ||
       [];
 
-    if (!Array.isArray(raw) || raw.length < 15) {
+    if (!Array.isArray(raw) || raw.length < 20) {
+
       return response(200, {
         status: "WAIT",
         market: "REAL",
         source: "RealMarketAPI",
         symbol,
         timeframe,
-        message: "Not enough candles for analysis"
+        message: "Not enough candles"
       });
     }
 
+    /* ===============================
+       CANDLE DATA
+    =============================== */
+
     const candles = raw
       .map(c => ({
+
         time:
           c.time ??
           c.Time ??
@@ -110,6 +121,7 @@ exports.handler = async (event) => {
           c.close ??
           c.Close
         )
+
       }))
       .filter(c =>
         Number.isFinite(c.open) &&
@@ -118,32 +130,35 @@ exports.handler = async (event) => {
         Number.isFinite(c.close)
       )
       .sort((a, b) => {
-        const ta = new Date(a.time).getTime();
-        const tb = new Date(b.time).getTime();
-        return ta - tb;
+
+        return new Date(a.time).getTime() -
+               new Date(b.time).getTime();
+
       });
 
-    if (candles.length < 15) {
+
+    if (candles.length < 20) {
+
       return response(200, {
         status: "WAIT",
-        market: "REAL",
-        source: "RealMarketAPI",
-        symbol,
-        timeframe,
         message: "Not enough valid candles"
       });
+
     }
 
-    // ----------------------------------------
-    // EMA
-    // ----------------------------------------
 
-    function calculateEMA(values, period) {
+    /* ===============================
+       EMA
+    =============================== */
+
+    function EMA(values, period) {
+
       if (values.length < period) {
         return null;
       }
 
-      const multiplier = 2 / (period + 1);
+      const multiplier =
+        2 / (period + 1);
 
       let ema = 0;
 
@@ -151,287 +166,432 @@ exports.handler = async (event) => {
         ema += values[i];
       }
 
-      ema = ema / period;
+      ema /= period;
 
       for (let i = period; i < values.length; i++) {
+
         ema =
-          (values[i] - ema) * multiplier +
+          (values[i] - ema) *
+          multiplier +
           ema;
+
       }
 
       return ema;
     }
 
-    // ----------------------------------------
-    // RSI
-    // ----------------------------------------
 
-    function calculateRSI(values, period = 14) {
+    /* ===============================
+       RSI
+    =============================== */
+
+    function RSI(values, period = 14) {
+
       if (values.length <= period) {
         return null;
       }
 
-      let gains = 0;
-      let losses = 0;
+      let gain = 0;
+      let loss = 0;
 
       for (let i = 1; i <= period; i++) {
+
         const change =
           values[i] - values[i - 1];
 
         if (change > 0) {
-          gains += change;
+          gain += change;
         } else {
-          losses += Math.abs(change);
+          loss += Math.abs(change);
         }
+
       }
 
-      let averageGain = gains / period;
-      let averageLoss = losses / period;
+      let avgGain =
+        gain / period;
+
+      let avgLoss =
+        loss / period;
+
 
       for (
         let i = period + 1;
         i < values.length;
         i++
       ) {
+
         const change =
           values[i] - values[i - 1];
 
-        const gain =
+        const currentGain =
           change > 0 ? change : 0;
 
-        const loss =
-          change < 0 ? Math.abs(change) : 0;
+        const currentLoss =
+          change < 0
+            ? Math.abs(change)
+            : 0;
 
-        averageGain =
-          ((averageGain * (period - 1)) + gain) /
-          period;
+        avgGain =
+          ((avgGain * (period - 1)) +
+            currentGain) / period;
 
-        averageLoss =
-          ((averageLoss * (period - 1)) + loss) /
-          period;
+        avgLoss =
+          ((avgLoss * (period - 1)) +
+            currentLoss) / period;
+
       }
 
-      if (averageLoss === 0) {
+
+      if (avgLoss === 0) {
         return 100;
       }
 
       const rs =
-        averageGain / averageLoss;
+        avgGain / avgLoss;
 
-      return 100 - (100 / (1 + rs));
+      return 100 -
+        (100 / (1 + rs));
+
     }
+
+
+    /* ===============================
+       LAST CLOSED CANDLES
+    =============================== */
+
+    const last =
+      candles[candles.length - 1];
+
+    const prev =
+      candles[candles.length - 2];
+
+    const prev2 =
+      candles[candles.length - 3];
+
+    const prev3 =
+      candles[candles.length - 4];
+
 
     const closes =
       candles.map(c => c.close);
 
+
     const ema5 =
-      calculateEMA(closes, 5);
+      EMA(closes, 5);
 
     const ema13 =
-      calculateEMA(closes, 13);
+      EMA(closes, 13);
 
     const rsi =
-      calculateRSI(closes, 14);
+      RSI(closes, 14);
 
-    const current =
-      candles[candles.length - 1];
 
-    const previous =
-      candles[candles.length - 2];
+    /* ===============================
+       CANDLE DIRECTION
+    =============================== */
 
-    const previous2 =
-      candles[candles.length - 3];
+    const lastBull =
+      last.close > last.open;
 
-    // ----------------------------------------
-    // Candle calculations
-    // ----------------------------------------
+    const lastBear =
+      last.close < last.open;
 
-    const currentBull =
-      current.close > current.open;
+    const prevBull =
+      prev.close > prev.open;
 
-    const currentBear =
-      current.close < current.open;
+    const prevBear =
+      prev.close < prev.open;
 
-    const previousBull =
-      previous.close > previous.open;
+    const prev2Bull =
+      prev2.close > prev2.open;
 
-    const previousBear =
-      previous.close < previous.open;
+    const prev2Bear =
+      prev2.close < prev2.open;
+
+
+    /* ===============================
+       MOMENTUM
+    =============================== */
+
+    const momentum1 =
+      last.close - prev.close;
+
+    const momentum2 =
+      prev.close - prev2.close;
+
+    const momentum3 =
+      prev2.close - prev3.close;
+
+
+    /* ===============================
+       BODY STRENGTH
+    =============================== */
+
+    const range =
+      last.high - last.low;
 
     const body =
       Math.abs(
-        current.close - current.open
+        last.close -
+        last.open
       );
-
-    const range =
-      current.high - current.low;
 
     const bodyRatio =
       range > 0
         ? body / range
         : 0;
 
-    const momentum =
-      current.close - previous.close;
 
-    const previousMomentum =
-      previous.close - previous2.close;
+    /* ===============================
+       NEXT CANDLE ANALYSIS
+    =============================== */
 
-    // ----------------------------------------
-    // Scoring
-    // ----------------------------------------
+    let upScore = 0;
+    let downScore = 0;
 
-    let buyScore = 0;
-    let sellScore = 0;
 
-    // EMA trend
-    if (ema5 !== null && ema13 !== null) {
+    /* EMA TREND */
+
+    if (
+      ema5 !== null &&
+      ema13 !== null
+    ) {
 
       if (ema5 > ema13) {
-        buyScore += 3;
+        upScore += 3;
       }
 
       if (ema5 < ema13) {
-        sellScore += 3;
+        downScore += 3;
       }
+
     }
 
-    // Price vs EMA
+
+    /* PRICE vs EMA */
+
     if (ema5 !== null) {
 
-      if (current.close > ema5) {
-        buyScore += 1;
+      if (last.close > ema5) {
+        upScore += 2;
       }
 
-      if (current.close < ema5) {
-        sellScore += 1;
+      if (last.close < ema5) {
+        downScore += 2;
       }
+
     }
 
-    // RSI
+
+    /* RSI */
+
     if (rsi !== null) {
 
-      if (rsi >= 52 && rsi <= 68) {
-        buyScore += 2;
+      if (
+        rsi >= 52 &&
+        rsi <= 68
+      ) {
+        upScore += 2;
       }
 
-      if (rsi <= 48 && rsi >= 32) {
-        sellScore += 2;
+      if (
+        rsi >= 32 &&
+        rsi <= 48
+      ) {
+        downScore += 2;
       }
 
-      // Avoid chasing extreme conditions
-      if (rsi > 72) {
-        sellScore += 1;
+      /*
+        Strong extreme conditions
+      */
+
+      if (rsi < 30) {
+        upScore += 1;
       }
 
-      if (rsi < 28) {
-        buyScore += 1;
+      if (rsi > 70) {
+        downScore += 1;
       }
+
     }
 
-    // Current candle
-    if (currentBull) {
-      buyScore += 2;
+
+    /* CANDLE CONFIRMATION */
+
+    if (lastBull) {
+      upScore += 2;
     }
 
-    if (currentBear) {
-      sellScore += 2;
+    if (lastBear) {
+      downScore += 2;
     }
 
-    // Previous candle confirmation
-    if (previousBull) {
-      buyScore += 1;
+
+    if (prevBull) {
+      upScore += 1;
     }
 
-    if (previousBear) {
-      sellScore += 1;
+    if (prevBear) {
+      downScore += 1;
     }
 
-    // Momentum
-    if (momentum > 0) {
-      buyScore += 2;
-    }
 
-    if (momentum < 0) {
-      sellScore += 2;
-    }
-
-    // Momentum continuation
-    if (
-      momentum > 0 &&
-      previousMomentum > 0
-    ) {
-      buyScore += 1;
-    }
+    /* TWO CANDLE CONFIRMATION */
 
     if (
-      momentum < 0 &&
-      previousMomentum < 0
+      lastBull &&
+      prevBull
     ) {
-      sellScore += 1;
+      upScore += 2;
     }
 
-    // Strong candle body
+    if (
+      lastBear &&
+      prevBear
+    ) {
+      downScore += 2;
+    }
+
+
+    /* MOMENTUM */
+
+    if (momentum1 > 0) {
+      upScore += 2;
+    }
+
+    if (momentum1 < 0) {
+      downScore += 2;
+    }
+
+
+    if (
+      momentum1 > 0 &&
+      momentum2 > 0
+    ) {
+      upScore += 2;
+    }
+
+    if (
+      momentum1 < 0 &&
+      momentum2 < 0
+    ) {
+      downScore += 2;
+    }
+
+
+    if (
+      momentum1 > 0 &&
+      momentum2 > 0 &&
+      momentum3 > 0
+    ) {
+      upScore += 1;
+    }
+
+    if (
+      momentum1 < 0 &&
+      momentum2 < 0 &&
+      momentum3 < 0
+    ) {
+      downScore += 1;
+    }
+
+
+    /* STRONG CANDLE */
+
     if (bodyRatio >= 0.55) {
 
-      if (currentBull) {
-        buyScore += 1;
+      if (lastBull) {
+        upScore += 1;
       }
 
-      if (currentBear) {
-        sellScore += 1;
+      if (lastBear) {
+        downScore += 1;
       }
+
     }
 
-    // ----------------------------------------
-    // Final signal
-    // ----------------------------------------
 
-    let signal = "WAIT";
-    let strength = 50;
+    /* ===============================
+       FINAL NEXT CANDLE PREDICTION
+    =============================== */
+
+    let signal =
+      "WAIT";
+
+    let nextCandle =
+      "WAIT";
+
+    let strength =
+      50;
+
 
     const difference =
       Math.abs(
-        buyScore - sellScore
+        upScore -
+        downScore
       );
 
+
+    /*
+      Only signal when
+      confirmation is strong.
+    */
+
     if (
-      buyScore >= 7 &&
-      buyScore > sellScore &&
-      difference >= 2
+      upScore >= 8 &&
+      upScore > downScore &&
+      difference >= 3
     ) {
 
-      signal = "BUY";
+      signal =
+        "BUY";
+
+      nextCandle =
+        "UP";
 
       strength =
         Math.min(
           95,
-          70 + difference * 4
+          70 + difference * 3
         );
+
     }
 
     else if (
-      sellScore >= 7 &&
-      sellScore > buyScore &&
-      difference >= 2
+      downScore >= 8 &&
+      downScore > upScore &&
+      difference >= 3
     ) {
 
-      signal = "SELL";
+      signal =
+        "SELL";
+
+      nextCandle =
+        "DOWN";
 
       strength =
         Math.min(
           95,
-          70 + difference * 4
+          70 + difference * 3
         );
+
     }
+
+
+    /* ===============================
+       RESPONSE
+    =============================== */
 
     return response(200, {
 
-      status: "success",
+      status:
+        "success",
 
-      market: "REAL",
+      market:
+        "REAL",
 
-      source: "RealMarketAPI",
+      source:
+        "RealMarketAPI",
 
       symbol,
 
@@ -439,65 +599,89 @@ exports.handler = async (event) => {
 
       signal,
 
+      nextCandle,
+
       strength,
 
-      price: current.close,
+      price:
+        last.close,
 
-      candleTime: current.time,
+      candleTime:
+        last.time,
 
       indicators: {
+
         ema5:
-          Number(ema5?.toFixed(6)),
+          Number(
+            ema5?.toFixed(6)
+          ),
 
         ema13:
-          Number(ema13?.toFixed(6)),
+          Number(
+            ema13?.toFixed(6)
+          ),
 
         rsi:
-          Number(rsi?.toFixed(2)),
+          Number(
+            rsi?.toFixed(2)
+          ),
 
-        buyScore,
+        upScore,
 
-        sellScore,
+        downScore,
+
+        difference,
 
         candleDirection:
-          currentBull
-            ? "BULLISH"
-            : currentBear
-              ? "BEARISH"
+          lastBull
+            ? "UP"
+            : lastBear
+              ? "DOWN"
               : "NEUTRAL"
+
       },
 
       analysis:
-        "Live market candle analysis using EMA, RSI, momentum and candle confirmation"
+        "Next 1-minute candle direction analyzed using EMA, RSI, momentum and candle confirmation"
 
     });
+
 
   } catch (error) {
 
     return response(500, {
 
-      status: "ERROR",
+      status:
+        "ERROR",
 
-      market: "REAL",
+      market:
+        "REAL",
 
-      source: "RealMarketAPI",
+      source:
+        "RealMarketAPI",
 
       symbol,
 
       timeframe,
 
-      message: error.message
+      message:
+        error.message
 
     });
+
   }
+
 };
 
 
-// ----------------------------------------
-// RESPONSE
-// ----------------------------------------
+/* ===============================
+   RESPONSE
+=============================== */
 
-function response(statusCode, body) {
+function response(
+  statusCode,
+  body
+) {
 
   return {
 
@@ -526,4 +710,5 @@ function response(statusCode, body) {
       JSON.stringify(body)
 
   };
+
 }
